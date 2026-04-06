@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alex Huang — Statistics & ML</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #e8edf2;
+    --paper: #0d1117;
+    --paper2: #111820;
+    --accent: #00d4aa;
+    --accent2: #4da6ff;
+    --muted: #6b7d8f;
+    --rule: rgba(255,255,255,0.07);
+    --serif: 'Playfair Display', Georgia, serif;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── DOT GRID + GLOW OVERLAY ── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(0,212,170,0.07) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% -5%, rgba(0,212,170,0.1) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 4rem;
+    background: rgba(13,17,23,0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0;
+    width: 0; height: 1px;
+    background: var(--accent);
+    transition: width 0.25s;
+  }
+
+  .nav-links a:hover { color: var(--ink); }
+  .nav-links a:hover::after { width: 100%; }
+
+  /* ── HERO ── */
+  #home {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    padding-top: 5rem;
+  }
+
+  .hero-left {
+    padding: 8rem 4rem 4rem 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--rule);
+  }
+
+  .hero-issue {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .hero-issue::before {
+    content: '';
+    display: inline-block;
+    width: 24px; height: 1px;
+    background: var(--accent);
+  }
+
+  .hero-name {
+    font-family: var(--serif);
+    font-size: clamp(3.5rem, 6vw, 5.5rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-name em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-tagline {
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--muted);
+    max-width: 38ch;
+    line-height: 1.6;
+    border-left: 2px solid var(--accent);
+    padding-left: 1rem;
+  }
+
+  .hero-cta {
+    margin-top: 3rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.7rem 1.5rem;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--ink);
+    text-decoration: none;
+    transition: all 0.2s;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+  }
+
+  .btn:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-fill {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0d1117;
+    font-weight: 500;
+  }
+
+  .btn-fill:hover {
+    background: #00f0c0;
+    border-color: #00f0c0;
+    color: #0d1117;
+  }
+
+  .hero-right {
+    padding: 8rem 4rem 4rem 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2.5rem;
+  }
+
+  .hero-stat {
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .hero-stat:last-child { border-bottom: none; }
+
+  .stat-num {
+    font-family: var(--mono);
+    font-size: 2.6rem;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.3rem;
+  }
+
+  /* ── SECTION SHELL ── */
+  section {
+    padding: 7rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section-index {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 3.5vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  /* ── FULL-WIDTH DIVIDER SECTIONS ── */
+  .full-section {
+    width: 100%;
+    background: var(--paper2);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* ── ABOUT ── */
+  #about .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: start;
+  }
+
+  .about-text p {
+    font-size: 1.05rem;
+    color: var(--ink);
+    margin-bottom: 1.2rem;
+  }
+
+  .about-text p:first-child {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  .about-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid rgba(0,212,170,0.2);
+    color: var(--accent);
+    background: rgba(0,212,170,0.06);
+  }
+
+  .about-sidebar {
+    border-left: 1px solid var(--rule);
+    padding-left: 3rem;
+  }
+
+  .sidebar-item {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .sidebar-item:last-child { border-bottom: none; }
+
+  .sidebar-label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  .sidebar-value {
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+
+  /* ── EDUCATION ── */
+  #education {
+    background: var(--paper2);
+    max-width: 100%;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  #education > .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 7rem 4rem;
+  }
+
+  .edu-timeline {
+    position: relative;
+    padding-left: 3rem;
+  }
+
+  .edu-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: var(--rule);
+  }
+
+  .edu-item {
+    position: relative;
+    margin-bottom: 3.5rem;
+    padding-bottom: 3.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .edu-item:last-child { border-bottom: none; margin-bottom: 0; }
+
+  .edu-item::before {
+    content: '';
+    position: absolute;
+    left: -3.35rem; top: 0.4rem;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--paper2);
+  }
+
+  .edu-year {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .edu-degree {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+
+  .edu-school {
+    font-size: 0.95rem;
+    color: var(--accent2);
+    font-weight: 500;
+    margin-bottom: 0.8rem;
+  }
+
+  .edu-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    max-width: 65ch;
+  }
+
+  /* ── SKILLS ── */
+  #skills .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--rule);
+  }
+
+  .skill-group {
+    padding: 2.5rem;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+    transition: background 0.2s;
+  }
+
+  .skill-group:hover {
+    background: rgba(0,212,170,0.04);
+  }
+
+  .skill-group:nth-child(3n) { border-right: none; }
+  .skill-group:nth-last-child(-n+3) { border-bottom: none; }
+
+  .skill-group-title {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .skill-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .skill-list li {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .skill-list li::before {
+    content: '—';
+    color: var(--muted);
+    font-size: 0.7rem;
+  }
+
+  /* ── PROJECTS ── */
+  #projects .projects-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .project-card {
+    background: var(--paper);
+    padding: 2.5rem;
+    transition: background 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+
+  .project-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid transparent;
+    transition: border-color 0.2s;
+    pointer-events: none;
+  }
+
+  .project-card:hover {
+    background: rgba(0,212,170,0.04);
+  }
+
+  .project-card:hover::before {
+    border-color: rgba(0,212,170,0.25);
+  }
+
+  .project-num {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .project-title {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    line-height: 1.2;
+  }
+
+  .project-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .project-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .project-stack span {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.5rem;
+    background: rgba(0,212,170,0.08);
+    color: var(--accent);
+    border: 1px solid rgba(0,212,170,0.2);
+  }
+
+  .project-link {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: gap 0.2s;
+  }
+
+  .project-link:hover { gap: 0.8rem; }
+
+  /* ── LIFE ── */
+  #life {
+    background: var(--paper2);
+    max-width: 100%;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  #life > .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 7rem 4rem;
+  }
+
+  .life-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .life-main p {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .life-main p.body-text {
+    font-family: var(--sans);
+    font-style: normal;
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+
+  .life-aside {
+    border-left: 1px solid var(--rule);
+    padding-left: 2rem;
+  }
+
+  .life-aside-title {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .interest-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.88rem;
+    color: var(--ink);
+  }
+
+  .interest-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  /* ── CONTACT ── */
+  #contact .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: start;
+  }
+
+  .contact-intro {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-style: italic;
+    line-height: 1.3;
+    color: var(--ink);
+    margin-bottom: 2rem;
+  }
+
+  .contact-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .contact-link-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+    color: var(--ink);
+    transition: padding-left 0.2s;
+  }
+
+  .contact-link-item:hover { padding-left: 0.5rem; }
+
+  .contact-link-label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    width: 5rem;
+  }
+
+  .contact-link-value {
+    font-size: 0.95rem;
+    color: var(--accent2);
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .form-group label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .form-group input,
+  .form-group textarea {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 0.6rem 0;
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    border-color: var(--accent);
+  }
+
+  .form-group input::placeholder,
+  .form-group textarea::placeholder {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #080c10;
+    color: var(--paper);
+    padding: 3rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--rule);
+  }
+
+  .footer-logo {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    font-style: italic;
+  }
+
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: rgba(245,242,235,0.4);
+  }
+
+  /* ── ANIMATIONS ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* stagger children */
+  .stagger > * {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .stagger.visible > *:nth-child(1) { opacity: 1; transform: none; transition-delay: 0s; }
+  .stagger.visible > *:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.08s; }
+  .stagger.visible > *:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.16s; }
+  .stagger.visible > *:nth-child(4) { opacity: 1; transform: none; transition-delay: 0.24s; }
+  .stagger.visible > *:nth-child(5) { opacity: 1; transform: none; transition-delay: 0.32s; }
+  .stagger.visible > *:nth-child(6) { opacity: 1; transform: none; transition-delay: 0.40s; }
+
+  /* typing cursor */
+  .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: var(--accent);
+    margin-left: 3px;
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* horizontal rule accent */
+  .rule-accent {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 3rem 0;
+  }
+
+  .rule-accent::before, .rule-accent::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .rule-accent span {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* responsive */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 2rem; }
+    #home { grid-template-columns: 1fr; }
+    .hero-left { border-right: none; border-bottom: 1px solid var(--rule); padding: 6rem 2rem 3rem; }
+    .hero-right { padding: 3rem 2rem; flex-direction: row; flex-wrap: wrap; }
+    section { padding: 5rem 2rem; }
+    #education > .section-inner, #life > .section-inner { padding: 5rem 2rem; }
+    .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .about-sidebar { border-left: none; border-top: 1px solid var(--rule); padding-left: 0; padding-top: 2rem; }
+    .skills-grid { grid-template-columns: 1fr 1fr; }
+    .skill-group:nth-child(3n) { border-right: 1px solid var(--rule); }
+    .skill-group:nth-child(2n) { border-right: none; }
+    .projects-grid { grid-template-columns: 1fr; }
+    .life-grid { grid-template-columns: 1fr; }
+    .life-aside { border-left: none; border-top: 1px solid var(--rule); padding-left: 0; padding-top: 2rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════ NAV ══ -->
+<nav>
+  <a href="#home" class="nav-logo">A.H. / Portfolio</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#life">Life</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════════════════════════════════════════ HERO ══ -->
+<div id="home">
+  <div class="hero-left fade-in">
+    <div class="hero-issue">Portfolio — 2025</div>
+    <h1 class="hero-name">
+      Alex<br><em>Huang</em>
+    </h1>
+    <p class="hero-tagline">
+      Applied Statistics & Mathematics at the University of Toronto.<br>
+      Researching at the intersection of <span id="typed-role"></span><span class="cursor"></span>
+    </p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-fill">View Projects</a>
+      <a href="#contact" class="btn">Get in Touch</a>
+    </div>
+  </div>
+
+  <div class="hero-right stagger">
+    <div class="hero-stat">
+      <div class="stat-num">UofT</div>
+      <div class="stat-label">Applied Statistics Specialist</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-num">NLP</div>
+      <div class="stat-label">Primary Research Focus</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">Curiosity-driven learning</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ ABOUT ══ -->
+<section id="about">
+  <div class="section-header fade-in">
+    <span class="section-index">01</span>
+    <h2 class="section-title">About Me</h2>
+  </div>
+  <div class="about-grid">
+    <div class="about-text fade-in">
+      <p>Statistics is the language through which uncertainty becomes knowledge.</p>
+      <p>
+        I'm a student at the University of Toronto pursuing an Applied Statistics Specialist
+        and Applied Mathematics Major. My work sits at the boundary between
+        rigorous statistical theory and practical machine learning, with a particular
+        focus on Natural Language Processing.
+      </p>
+      <p>
+        I'm drawn to problems where mathematical structure meets real-world complexity —
+        building models that are both theoretically grounded and genuinely useful.
+        From Bayesian inference and probabilistic modeling to deep learning architectures,
+        I enjoy the full spectrum from theory to implementation.
+      </p>
+      <p>
+        Outside of research, I care deeply about clean, reproducible code and the kind
+        of collaborative science that moves the field forward.
+      </p>
+      <div class="about-tags">
+        <span class="tag">Bayesian Statistics</span>
+        <span class="tag">Deep Learning</span>
+        <span class="tag">NLP</span>
+        <span class="tag">Applied Mathematics</span>
+        <span class="tag">Data Visualization</span>
+        <span class="tag">Probabilistic Modeling</span>
+      </div>
+    </div>
+
+    <div class="about-sidebar fade-in">
+      <div class="sidebar-item">
+        <div class="sidebar-label">Institution</div>
+        <div class="sidebar-value">University of Toronto</div>
+      </div>
+      <div class="sidebar-item">
+        <div class="sidebar-label">Program</div>
+        <div class="sidebar-value">Applied Statistics Specialist<br>Applied Mathematics Major</div>
+      </div>
+      <div class="sidebar-item">
+        <div class="sidebar-label">Research Interests</div>
+        <div class="sidebar-value">NLP, Probabilistic Models,<br>Statistical Learning Theory</div>
+      </div>
+      <div class="sidebar-item">
+        <div class="sidebar-label">Location</div>
+        <div class="sidebar-value">Toronto, Ontario, Canada</div>
+      </div>
+      <div class="sidebar-item">
+        <div class="sidebar-label">Status</div>
+        <div class="sidebar-value">Open to research &amp; internship opportunities</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ EDUCATION ══ -->
+<div class="full-section" id="education">
+  <div class="section-inner">
+    <div class="section-header fade-in">
+      <span class="section-index">02</span>
+      <h2 class="section-title">Education</h2>
+    </div>
+    <div class="edu-timeline stagger">
+      <div class="edu-item">
+        <div class="edu-year">2022 — Present</div>
+        <div class="edu-degree">B.Sc. Applied Statistics Specialist &amp; Applied Mathematics Major</div>
+        <div class="edu-school">University of Toronto, Faculty of Arts &amp; Science</div>
+        <div class="edu-desc">
+          Honours program focusing on statistical theory, machine learning, stochastic processes,
+          and real analysis. Relevant courses include Statistical Learning, Bayesian Methods,
+          Regression Analysis, and Mathematical Statistics.
+        </div>
+      </div>
+      <div class="edu-item">
+        <div class="edu-year">Relevant Coursework</div>
+        <div class="edu-degree">Machine Learning &amp; Data Science</div>
+        <div class="edu-school">Machine Learning · Bayesian Methods · Regression · Mathematical Statistics</div>
+        <div class="edu-desc">
+          Hands-on experience with ML pipelines including classification, regression,
+          neural networks, and Bayesian inference. Projects spanning NLP, image classification,
+          and statistical modeling from first principles.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ SKILLS ══ -->
+<section id="skills">
+  <div class="section-header fade-in">
+    <span class="section-index">03</span>
+    <h2 class="section-title">Skills &amp; Tools</h2>
+  </div>
+  <div class="skills-grid stagger">
+    <div class="skill-group">
+      <div class="skill-group-title">Languages</div>
+      <ul class="skill-list">
+        <li>Python</li>
+        <li>R</li>
+        <li>C</li>
+        <li>SQL</li>
+        <li>LaTeX</li>
+      </ul>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-title">Machine Learning</div>
+      <ul class="skill-list">
+        <li>PyTorch</li>
+        <li>scikit-learn</li>
+        <li>Hugging Face</li>
+        <li>NumPy / SciPy</li>
+        <li>Pandas</li>
+        <li>JAX</li>
+      </ul>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-title">Statistics</div>
+      <ul class="skill-list">
+        <li>Bayesian Inference</li>
+        <li>Regression Analysis</li>
+        <li>Time Series</li>
+        <li>Stan / PyMC</li>
+        <li>Probabilistic Programming</li>
+        <li>Survival Analysis</li>
+      </ul>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-title">NLP &amp; Deep Learning</div>
+      <ul class="skill-list">
+        <li>Transformer Models</li>
+        <li>Text Classification</li>
+        <li>TF-IDF / Embeddings</li>
+        <li>Fine-tuning LLMs</li>
+        <li>Sequence Modeling</li>
+      </ul>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-title">Infrastructure</div>
+      <ul class="skill-list">
+        <li>Ubuntu / Linux</li>
+        <li>Git &amp; GitHub</li>
+        <li>Docker</li>
+        <li>Jupyter / Quarto</li>
+        <li>SLURM / HPC</li>
+      </ul>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-title">Visualization</div>
+      <ul class="skill-list">
+        <li>ggplot2</li>
+        <li>Matplotlib / Seaborn</li>
+        <li>Plotly</li>
+        <li>R Shiny</li>
+        <li>D3.js</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ PROJECTS ══ -->
+<section id="projects" style="background: var(--paper2); max-width: 100%; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 7rem 0;">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 0 4rem;">
+    <div class="section-header fade-in">
+      <span class="section-index">04</span>
+      <h2 class="section-title">Projects</h2>
+    </div>
+    <div class="projects-grid stagger">
+
+      <div class="project-card">
+        <div class="project-num">Project 01</div>
+        <div class="project-title">Painting Classification Pipeline</div>
+        <div class="project-desc">
+          End-to-end ML pipeline for art classification as part of the CSC311 challenge.
+          Built data cleaning, feature engineering with TF-IDF, and trained Logistic Regression
+          models achieving competitive accuracy with a numpy-only inference script for submission.
+        </div>
+        <div class="project-stack">
+          <span>Python</span><span>NumPy</span><span>scikit-learn</span><span>TF-IDF</span>
+        </div>
+        <a href="#" class="project-link">View Details →</a>
+      </div>
+
+      <div class="project-card">
+        <div class="project-num">Project 02</div>
+        <div class="project-title">Bayesian Linear Regression Analysis</div>
+        <div class="project-desc">
+          Comparative study of Bayesian and frequentist approaches to linear regression.
+          Derived closed-form OLS estimators and Normal-Normal conjugate posteriors,
+          with full mathematical proof and empirical validation.
+        </div>
+        <div class="project-stack">
+          <span>R</span><span>Stan</span><span>Bayesian Inference</span><span>LaTeX</span>
+        </div>
+        <a href="#" class="project-link">View Report →</a>
+      </div>
+
+      <div class="project-card">
+        <div class="project-num">Project 03</div>
+        <div class="project-title">Interactive Statistical Dashboard</div>
+        <div class="project-desc">
+          R Shiny application with interactive ggplot2 and Plotly visualizations.
+          Features adaptive label positioning for vertical reference lines across
+          polynomial and KNN regression modes with dynamic axis scaling.
+        </div>
+        <div class="project-stack">
+          <span>R</span><span>Shiny</span><span>ggplot2</span><span>Plotly</span>
+        </div>
+        <a href="#" class="project-link">View App →</a>
+      </div>
+
+      <div class="project-card">
+        <div class="project-num">Project 04</div>
+        <div class="project-title">NLP Text Analysis Research</div>
+        <div class="project-desc">
+          Deep learning approaches to natural language understanding, exploring
+          transformer-based architectures for sequence classification tasks.
+          Experiments with fine-tuning pre-trained language models on domain-specific corpora.
+        </div>
+        <div class="project-stack">
+          <span>PyTorch</span><span>Hugging Face</span><span>Python</span><span>BERT</span>
+        </div>
+        <a href="#" class="project-link">View Code →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ LIFE ══ -->
+<div class="full-section" id="life" style="background: var(--paper);">
+  <div class="section-inner">
+    <div class="section-header fade-in">
+      <span class="section-index">05</span>
+      <h2 class="section-title">Life &amp; Interests</h2>
+    </div>
+    <div class="life-grid">
+      <div class="life-main fade-in">
+        <p>"The purpose of computing is insight, not numbers."<br>— Richard Hamming</p>
+        <p class="body-text">
+          Beyond the mathematics and code, I'm someone who finds joy in understanding how things
+          work at a deep level — whether that's a statistical model, a piece of music, or a
+          philosophical argument. I believe the best researchers are those who stay genuinely
+          curious about the world.
+        </p>
+        <p class="body-text">
+          I'm particularly interested in the philosophy of statistics — questions about what
+          probability <em>means</em>, how we should reason under uncertainty, and the epistemology
+          of scientific inference. These aren't just academic questions; they shape how I approach
+          every analysis.
+        </p>
+        <p class="body-text">
+          Outside of academia, I enjoy hiking, reading across disciplines, and the occasional
+          late-night debugging session that somehow becomes a learning adventure.
+        </p>
+      </div>
+
+      <div class="life-aside fade-in">
+        <div class="life-aside-title">Currently into</div>
+        <div class="interest-item">
+          <span class="interest-icon">📖</span>
+          <span>Reading: <em>The Book of Why</em> by Judea Pearl</span>
+        </div>
+        <div class="interest-item">
+          <span class="interest-icon">🎵</span>
+          <span>Listening to ambient &amp; lo-fi while coding</span>
+        </div>
+        <div class="interest-item">
+          <span class="interest-icon">🏔️</span>
+          <span>Hiking trails around the GTA</span>
+        </div>
+        <div class="interest-item">
+          <span class="interest-icon">🔬</span>
+          <span>Exploring causal inference methods</span>
+        </div>
+        <div class="interest-item">
+          <span class="interest-icon">🐱</span>
+          <span>Spending time with my cat</span>
+        </div>
+      </div>
+
+      <div class="life-aside fade-in">
+        <div class="life-aside-title">Motto</div>
+        <blockquote style="font-family: var(--serif); font-style: italic; font-size: 1.05rem; line-height: 1.5; color: var(--muted); border-left: 2px solid var(--accent); padding-left: 1rem; margin-bottom: 1.5rem;">
+          "All models are wrong, but some are useful."
+        </blockquote>
+        <div style="font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.25rem;">— George Box</div>
+        <div style="font-family: var(--mono); font-size: 0.68rem; color: var(--muted);">Statistician</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ CONTACT ══ -->
+<section id="contact">
+  <div class="section-header fade-in">
+    <span class="section-index">06</span>
+    <h2 class="section-title">Get in Touch</h2>
+  </div>
+  <div class="contact-grid">
+    <div class="fade-in">
+      <p class="contact-intro">
+        Always open to research collaborations, internship opportunities,
+        or simply an interesting conversation.
+      </p>
+      <div class="contact-links">
+        <a href="mailto:alex.huang@mail.utoronto.ca" class="contact-link-item">
+          <span class="contact-link-label">Email</span>
+          <span class="contact-link-value">alex.huang@mail.utoronto.ca</span>
+        </a>
+        <a href="https://github.com/" target="_blank" class="contact-link-item">
+          <span class="contact-link-label">GitHub</span>
+          <span class="contact-link-value">github.com/alexhuang</span>
+        </a>
+        <a href="https://linkedin.com/" target="_blank" class="contact-link-item">
+          <span class="contact-link-label">LinkedIn</span>
+          <span class="contact-link-value">linkedin.com/in/alexhuang</span>
+        </a>
+        <a href="#" class="contact-link-item">
+          <span class="contact-link-label">Resume</span>
+          <span class="contact-link-value">Download CV (PDF)</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="contact-form fade-in">
+      <div class="form-group">
+        <label>Your Name</label>
+        <input type="text" placeholder="e.g. Jane Smith">
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" placeholder="jane@example.com">
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea rows="5" placeholder="What would you like to discuss?"></textarea>
+      </div>
+      <button class="btn btn-fill" style="align-self: flex-start; border: none; cursor: pointer;">Send Message</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ FOOTER ══ -->
+<footer>
+  <div class="footer-logo">Alex Huang</div>
+  <div class="footer-copy">© 2025 · Built with care · Toronto, Canada</div>
+</footer>
+
+<script>
+  // ── Typed role text ──
+  const roles = [
+    'statistics & language.',
+    'NLP and deep learning.',
+    'probabilistic models.',
+    'math and code.',
+  ];
+  let roleIndex = 0, charIndex = 0, deleting = false;
+  const el = document.getElementById('typed-role');
+
+  function typeLoop() {
+    const current = roles[roleIndex];
+    if (!deleting) {
+      el.textContent = current.slice(0, ++charIndex);
+      if (charIndex === current.length) {
+        deleting = true;
+        setTimeout(typeLoop, 2200);
+        return;
+      }
+    } else {
+      el.textContent = current.slice(0, --charIndex);
+      if (charIndex === 0) {
+        deleting = false;
+        roleIndex = (roleIndex + 1) % roles.length;
+      }
+    }
+    setTimeout(typeLoop, deleting ? 40 : 65);
+  }
+  setTimeout(typeLoop, 800);
+
+  // ── Scroll-triggered animations ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.fade-in, .stagger').forEach(el => observer.observe(el));
+
+  // Hero stagger visible immediately
+  document.querySelector('.hero-left').classList.add('visible');
+  setTimeout(() => document.querySelector('.hero-right').classList.add('visible'), 200);
+
+  // ── Active nav highlight on scroll ──
+  const sections = document.querySelectorAll('[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 120) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--ink)' : '';
+    });
+  });
+
+  // ── Education/Life sections need inner padding ──
+  document.querySelectorAll('.full-section .section-inner').forEach(el => {
+    el.style.padding = '7rem 4rem';
+  });
+</script>
+</body>
+</html>
