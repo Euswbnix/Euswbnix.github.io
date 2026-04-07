@@ -6,6 +6,14 @@
 <title>Alex — Statistics & ML</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
 <style>
   :root {
     --ink: #e8edf2;
@@ -110,6 +118,60 @@
     display: grid;
     grid-template-columns: 1fr 1px 1fr;
     padding-top: 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Particle network background canvas */
+  #hero-particles {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .hero-left, .hero-right {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Three.js 3D scene container */
+  .hero-3d {
+    width: 100%;
+    height: 280px;
+    margin-bottom: 2rem;
+    position: relative;
+    cursor: grab;
+  }
+  .hero-3d:active { cursor: grabbing; }
+  .hero-3d canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
+  .hero-3d-hint {
+    position: absolute;
+    bottom: 0.4rem;
+    right: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  /* Project card 3D tilt */
+  .project-card {
+    transform-style: preserve-3d;
+    transition: transform 0.25s ease-out, background 0.2s, box-shadow 0.2s;
+    will-change: transform;
+  }
+  .project-card > * {
+    transform: translateZ(0);
   }
 
   .hero-left {
@@ -276,6 +338,11 @@
     background: var(--paper2);
     border-top: 1px solid var(--rule);
     border-bottom: 1px solid var(--rule);
+  }
+  .full-section .section-inner {
+    padding: 7rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
   /* ── ABOUT ── */
@@ -511,11 +578,11 @@
   }
 
   .project-card:hover {
-    background: rgba(0,212,170,0.04);
+    background: var(--paper);
   }
 
   .project-card:hover::before {
-    border-color: rgba(0,212,170,0.25);
+    border-color: rgba(0,212,170,0.08);
   }
 
   .project-num {
@@ -638,6 +705,75 @@
     font-size: 1rem;
     flex-shrink: 0;
     margin-top: 0.1rem;
+    display: inline-block;
+  }
+
+  /* ── LIFE SECTION ANIMATIONS ── */
+  /* Body paragraphs cascade in from below when life-main becomes visible */
+  .life-main > p {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
+                transform 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .life-main.visible > p:nth-child(1) { opacity: 1; transform: none; transition-delay: 0s; }
+  .life-main.visible > p:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.18s; }
+  .life-main.visible > p:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.36s; }
+  .life-main.visible > p:nth-child(4) { opacity: 1; transform: none; transition-delay: 0.54s; }
+  .life-main.visible > p:nth-child(5) { opacity: 1; transform: none; transition-delay: 0.72s; }
+
+  /* "Currently into" — title drops, items slide in from right one by one */
+  .life-aside .life-aside-title {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .life-aside.visible .life-aside-title {
+    opacity: 1;
+    transform: none;
+  }
+
+  .life-aside .interest-item {
+    opacity: 0;
+    transform: translateX(28px);
+    transition: opacity 0.65s cubic-bezier(0.22, 0.61, 0.36, 1),
+                transform 0.65s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .life-aside.visible .interest-item:nth-of-type(1) { opacity: 1; transform: none; transition-delay: 0.20s; }
+  .life-aside.visible .interest-item:nth-of-type(2) { opacity: 1; transform: none; transition-delay: 0.32s; }
+  .life-aside.visible .interest-item:nth-of-type(3) { opacity: 1; transform: none; transition-delay: 0.44s; }
+  .life-aside.visible .interest-item:nth-of-type(4) { opacity: 1; transform: none; transition-delay: 0.56s; }
+  .life-aside.visible .interest-item:nth-of-type(5) { opacity: 1; transform: none; transition-delay: 0.68s; }
+
+  /* Subtle pulse on interest icons after they've appeared */
+  @keyframes iconPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.18); }
+  }
+  .life-aside.visible .interest-item:hover .interest-icon {
+    animation: iconPulse 0.7s ease;
+  }
+
+  /* Motto block fades in with a left-border draw */
+  .life-aside blockquote {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .life-aside.visible blockquote {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.25s;
+  }
+  .life-aside.visible blockquote ~ div {
+    animation: fadeUp 0.7s ease forwards;
+  }
+  .life-aside blockquote ~ div { opacity: 0; }
+  .life-aside.visible blockquote ~ div:nth-of-type(1) { animation-delay: 0.45s; }
+  .life-aside.visible blockquote ~ div:nth-of-type(2) { animation-delay: 0.55s; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
   }
 
   /* ── CONTACT ── */
@@ -825,23 +961,138 @@
     color: var(--muted);
   }
 
-  /* responsive */
-  @media (max-width: 900px) {
-    nav { padding: 1rem 2rem; }
-    #home { grid-template-columns: 1fr; }
-    .hero-left { border-right: none; border-bottom: 1px solid var(--rule); padding: 6rem 2rem 3rem; }
-    .hero-right { padding: 3rem 2rem; flex-direction: row; flex-wrap: wrap; }
-    section { padding: 5rem 2rem; }
-    #education > .section-inner, #life > .section-inner { padding: 5rem 2rem; }
-    .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
-    .about-sidebar { border-left: none; border-top: 1px solid var(--rule); padding-left: 0; padding-top: 2rem; }
-    .skills-grid { grid-template-columns: 1fr 1fr; }
+  /* ══════════════════════════════════════════════ RESPONSIVE ══ */
+
+  /* Tablet */
+  @media (max-width: 1024px) {
+    section { padding: 6rem 3rem; }
+    .full-section .section-inner { padding: 6rem 3rem; }
+    .hero-left { padding: 7rem 3rem 3rem; }
+    .hero-right { padding: 7rem 3rem 3rem; }
+    #projects .projects-grid { grid-template-columns: 1fr 1fr; }
+    #skills .skills-grid { grid-template-columns: 1fr 1fr 1fr; }
+  }
+
+  /* Mobile / narrow tablets */
+  @media (max-width: 820px) {
+    /* ── NAV ── */
+    nav {
+      padding: 0.9rem 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .nav-logo { font-size: 0.78rem; }
+    .nav-links {
+      gap: 0.9rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .nav-links a { font-size: 0.62rem; letter-spacing: 0.08em; }
+
+    /* ── HERO ── */
+    #home {
+      grid-template-columns: 1fr;
+      min-height: auto;
+      padding-top: 4rem;
+    }
+    .hero-left {
+      border-right: none;
+      border-bottom: 1px solid var(--rule);
+      padding: 4rem 1.5rem 3rem;
+    }
+    .hero-name { font-size: clamp(2.8rem, 11vw, 4rem); margin-bottom: 1.25rem; }
+    .hero-tagline { font-size: 0.95rem; max-width: 100%; }
+    .hero-cta { flex-wrap: wrap; gap: 0.75rem; }
+    .btn { font-size: 0.68rem; padding: 0.7rem 1.1rem; }
+
+    .hero-right {
+      padding: 2.5rem 1.5rem 4rem;
+      gap: 1.5rem;
+    }
+    .hero-3d { height: 220px; margin-bottom: 1rem; }
+    .stat-num { font-size: 2rem; }
+
+    /* ── SECTION PADDING ── */
+    section { padding: 4rem 1.5rem; }
+    .full-section .section-inner { padding: 4rem 1.5rem; }
+    .section-header { margin-bottom: 2.5rem; gap: 1rem; }
+    .section-title { font-size: clamp(1.8rem, 7vw, 2.4rem); }
+
+    /* ── ABOUT ── */
+    #about .about-grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+    .about-sidebar {
+      border-left: none;
+      border-top: 1px solid var(--rule);
+      padding-left: 0;
+      padding-top: 2rem;
+    }
+
+    /* ── EDUCATION TIMELINE ── */
+    .edu-timeline { padding-left: 1.5rem; }
+    .edu-item { padding-left: 1.25rem; }
+
+    /* ── SKILLS: 2 columns on mobile ── */
+    #skills .skills-grid { grid-template-columns: 1fr 1fr; }
+    .skill-group { padding: 1.5rem 1.25rem; }
     .skill-group:nth-child(3n) { border-right: 1px solid var(--rule); }
     .skill-group:nth-child(2n) { border-right: none; }
-    /* .projects-grid { grid-template-columns: 1fr; } */
-    .life-grid { grid-template-columns: 1fr; }
-    .life-aside { border-left: none; border-top: 1px solid var(--rule); padding-left: 0; padding-top: 2rem; }
-    footer { flex-direction: column; gap: 1rem; text-align: center; }
+    .skill-group:nth-last-child(-n+3) { border-bottom: 1px solid var(--rule); }
+    .skill-group:nth-last-child(-n+2) { border-bottom: none; }
+
+    /* ── PROJECTS: single column stacked ── */
+    #projects .projects-grid { grid-template-columns: 1fr; }
+    .project-card { padding: 1.75rem 1.5rem; }
+    .project-title { font-size: 1.2rem; }
+    /* Disable tilt on touch devices — it'd glitch */
+    .project-card { transform: none !important; }
+
+    /* ── LIFE ── */
+    .life-grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+    .life-aside {
+      border-left: none;
+      border-top: 1px solid var(--rule);
+      padding-left: 0;
+      padding-top: 2rem;
+    }
+
+    /* ── CONTACT ── */
+    #contact .contact-grid {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+    .contact-form { padding: 0; }
+    .form-group input, .form-group textarea { font-size: 0.95rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      flex-direction: column;
+      gap: 0.75rem;
+      text-align: center;
+      padding: 2rem 1.5rem;
+    }
+  }
+
+  /* Very small phones */
+  @media (max-width: 480px) {
+    .nav-links {
+      width: 100%;
+      justify-content: space-between;
+      gap: 0.4rem;
+    }
+    .nav-links a { font-size: 0.58rem; }
+    .hero-name { font-size: clamp(2.4rem, 12vw, 3.2rem); }
+    .hero-3d { height: 180px; }
+    #skills .skills-grid { grid-template-columns: 1fr; }
+    .skill-group:nth-child(n) { border-right: none; border-bottom: 1px solid var(--rule); }
+    .skill-group:last-child { border-bottom: none; }
+    .contact-link-label { width: 4rem; font-size: 0.62rem; }
+    .contact-link-value { font-size: 0.85rem; word-break: break-all; }
   }
 </style>
 </head>
@@ -862,6 +1113,7 @@
 
 <!-- ══════════════════════════════════════════════ HERO ══ -->
 <div id="home">
+  <canvas id="hero-particles"></canvas>
   <div class="hero-left fade-in">
     <div class="hero-issue">Portfolio — 2025</div>
     <h1 class="hero-name">
@@ -878,6 +1130,9 @@
   </div>
 
   <div class="hero-right stagger">
+    <div class="hero-3d" id="hero-3d">
+      <span class="hero-3d-hint">drag to rotate</span>
+    </div>
     <div class="hero-stat">
       <div class="stat-num">UofT</div>
       <div class="stat-label">Applied Statistics Specialist</div>
@@ -1150,32 +1405,39 @@
           every analysis.
         </p>
         <p class="body-text">
-          Outside of academia, I enjoy hiking, reading across disciplines, and the occasional
-          late-night debugging session that somehow becomes a learning adventure.
+          Music has been a central part of my life since I was four and a half, when I first
+          picked up the cello. I spent four years as a member of the symphony orchestra at the
+          High School Attached to Northeast Normal University, which gave me a deep love for
+          ensemble playing and classical repertoire that has stayed with me ever since.
+        </p>
+        <p class="body-text">
+          Outside of academia and music, I enjoy playing badminton, exploring new ideas across
+          disciplines, and the occasional late-night debugging session that somehow becomes a
+          learning adventure.
         </p>
       </div>
 
       <div class="life-aside fade-in">
         <div class="life-aside-title">Currently into</div>
         <div class="interest-item">
-          <span class="interest-icon">📖</span>
-          <span>Reading: <em>The Book of Why</em> by Judea Pearl</span>
+          <span class="interest-icon">🎨</span>
+          <span>Researching UI &amp; interaction design methods</span>
         </div>
         <div class="interest-item">
           <span class="interest-icon">🎵</span>
-          <span>Listening to ambient &amp; lo-fi while coding</span>
+          <span>Listening to pop music while coding</span>
         </div>
         <div class="interest-item">
-          <span class="interest-icon">🏔️</span>
-          <span>Hiking trails around the GTA</span>
+          <span class="interest-icon">💬</span>
+          <span>Distilling chat conversations into LLM system prompts</span>
         </div>
         <div class="interest-item">
           <span class="interest-icon">🔬</span>
           <span>Exploring causal inference methods</span>
         </div>
         <div class="interest-item">
-          <span class="interest-icon">🐱</span>
-          <span>Spending time with my cat</span>
+          <span class="interest-icon">🏸</span>
+          <span>Playing badminton</span>
         </div>
       </div>
 
@@ -1362,6 +1624,114 @@
     setTimeout(scrollFallback, 100);
   })();
 
+  // ── Hero particle network background ──
+  (function initHeroParticles() {
+    const canvas = document.getElementById('hero-particles');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let w, h, particles;
+    let mouse = { x: -9999, y: -9999 };
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * DPR;
+      canvas.height = rect.height * DPR;
+      w = canvas.width;
+      h = canvas.height;
+    }
+
+    function init() {
+      resize();
+      const count = Math.min(90, Math.floor((w * h) / (30000 * DPR)));
+      particles = Array.from({ length: count }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.25 * DPR,
+        vy: (Math.random() - 0.5) * 0.25 * DPR,
+      }));
+    }
+
+    function step() {
+      ctx.clearRect(0, 0, w, h);
+
+      // Move + draw points
+      ctx.fillStyle = 'rgba(0, 212, 170, 0.7)';
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 1.4 * DPR, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Lines between close neighbors
+      const maxDist = 130 * DPR;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const d = Math.hypot(dx, dy);
+          if (d < maxDist) {
+            const a = (1 - d / maxDist) * 0.28;
+            ctx.strokeStyle = `rgba(0, 212, 170, ${a})`;
+            ctx.lineWidth = 0.6 * DPR;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+        // Line to mouse if close
+        const dx = particles[i].x - mouse.x;
+        const dy = particles[i].y - mouse.y;
+        const d = Math.hypot(dx, dy);
+        if (d < maxDist * 1.3) {
+          const a = (1 - d / (maxDist * 1.3)) * 0.45;
+          ctx.strokeStyle = `rgba(77, 166, 255, ${a})`;
+          ctx.lineWidth = 0.8 * DPR;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.stroke();
+        }
+      }
+
+      requestAnimationFrame(step);
+    }
+
+    init();
+    window.addEventListener('resize', init);
+    window.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = (e.clientX - rect.left) * DPR;
+      mouse.y = (e.clientY - rect.top) * DPR;
+    });
+    window.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+    step();
+  })();
+
+  // ── Project card 3D tilt effect ──
+  (function initProjectTilt() {
+    const cards = document.querySelectorAll('.project-card');
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const px = (e.clientX - rect.left) / rect.width;
+        const py = (e.clientY - rect.top) / rect.height;
+        const rotX = (0.5 - py) * 8;
+        const rotY = (px - 0.5) * 10;
+        card.style.transform =
+          `perspective(1100px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(4px)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+  })();
+
   // ── Contact form: AJAX submit to Formspree ──
   (function initContactForm() {
     const form = document.querySelector('.contact-form');
@@ -1422,10 +1792,119 @@
     });
   });
 
-  // ── Education/Life sections need inner padding ──
-  document.querySelectorAll('.full-section .section-inner').forEach(el => {
-    el.style.padding = '7rem 4rem';
-  });
+  // (section-inner padding now handled in CSS so mobile breakpoints work)
 </script>
+
+<!-- ══════════════════════════════════════════════ THREE.JS 3D SCENE ══ -->
+<script type="module">
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+  const container = document.getElementById('hero-3d');
+  if (container) {
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(
+      45,
+      container.clientWidth / container.clientHeight,
+      0.1,
+      100
+    );
+    camera.position.set(0, 0, 4);
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(renderer.domElement);
+
+    // Lights (for the solid inner sphere)
+    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+    const keyLight = new THREE.PointLight(0x00d4aa, 1.4, 20);
+    keyLight.position.set(3, 3, 4);
+    scene.add(keyLight);
+    const rimLight = new THREE.PointLight(0x4da6ff, 0.9, 20);
+    rimLight.position.set(-3, -2, 3);
+    scene.add(rimLight);
+
+    // ── Wireframe icosahedron (the iconic "data sphere") ──
+    const icoGeo = new THREE.IcosahedronGeometry(1.2, 2);
+    const wireMat = new THREE.MeshBasicMaterial({
+      color: 0x00d4aa,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.75,
+    });
+    const wire = new THREE.Mesh(icoGeo, wireMat);
+    scene.add(wire);
+
+    // Inner solid core (subtle)
+    const coreGeo = new THREE.IcosahedronGeometry(0.75, 1);
+    const coreMat = new THREE.MeshStandardMaterial({
+      color: 0x0d1117,
+      metalness: 0.6,
+      roughness: 0.3,
+      emissive: 0x003322,
+      emissiveIntensity: 0.4,
+    });
+    const core = new THREE.Mesh(coreGeo, coreMat);
+    scene.add(core);
+
+    // Particle cloud around the sphere
+    const pCount = 180;
+    const positions = new Float32Array(pCount * 3);
+    for (let i = 0; i < pCount; i++) {
+      const r = 1.8 + Math.random() * 1.2;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      positions[i * 3 + 2] = r * Math.cos(phi);
+    }
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const pMat = new THREE.PointsMaterial({
+      color: 0x4da6ff,
+      size: 0.035,
+      transparent: true,
+      opacity: 0.85,
+    });
+    const points = new THREE.Points(pGeo, pMat);
+    scene.add(points);
+
+    // OrbitControls — drag to rotate
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableZoom = false;
+    controls.enablePan = false;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.9;
+    controls.rotateSpeed = 0.8;
+
+    // Animate
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+      wire.rotation.x = t * 0.15;
+      points.rotation.y = t * 0.05;
+      points.rotation.x = t * 0.03;
+      core.rotation.y = -t * 0.2;
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Resize
+    function onResize() {
+      if (!container.clientWidth || !container.clientHeight) return;
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    }
+    window.addEventListener('resize', onResize);
+  }
+</script>
+
 </body>
 </html>
