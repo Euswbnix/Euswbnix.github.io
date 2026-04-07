@@ -1226,21 +1226,24 @@
       </div>
     </div>
 
-    <div class="contact-form fade-in">
+    <form class="contact-form fade-in" action="https://formspree.io/f/xzdkodkr" method="POST">
       <div class="form-group">
-        <label>Your Name</label>
-        <input type="text" placeholder="e.g. Jane Smith">
+        <label for="cf-name">Your Name</label>
+        <input id="cf-name" type="text" name="name" placeholder="e.g. Jane Smith" required>
       </div>
       <div class="form-group">
-        <label>Email Address</label>
-        <input type="email" placeholder="jane@example.com">
+        <label for="cf-email">Email Address</label>
+        <input id="cf-email" type="email" name="email" placeholder="jane@example.com" required>
       </div>
       <div class="form-group">
-        <label>Message</label>
-        <textarea rows="5" placeholder="What would you like to discuss?"></textarea>
+        <label for="cf-message">Message</label>
+        <textarea id="cf-message" name="message" rows="5" placeholder="What would you like to discuss?" required></textarea>
       </div>
-      <button class="btn btn-fill" style="align-self: flex-start; border: none; cursor: pointer;">Send Message</button>
-    </div>
+      <!-- Honeypot field to reduce spam -->
+      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
+      <button type="submit" class="btn btn-fill" style="align-self: flex-start; border: none; cursor: pointer;">Send Message</button>
+      <p class="form-status" style="display:none;font-family:var(--mono);font-size:0.8rem;margin-top:0.5rem;"></p>
+    </form>
   </div>
 </section>
 
@@ -1357,6 +1360,49 @@
     window.addEventListener('scroll', scrollFallback, { passive: true });
     // Check once on load in case skills is already in view
     setTimeout(scrollFallback, 100);
+  })();
+
+  // ── Contact form: AJAX submit to Formspree ──
+  (function initContactForm() {
+    const form = document.querySelector('.contact-form');
+    if (!form) return;
+    const status = form.querySelector('.form-status');
+    const btn = form.querySelector('button[type="submit"]');
+
+    function setStatus(msg, color) {
+      if (!status) return;
+      status.textContent = msg;
+      status.style.display = 'block';
+      status.style.color = color || 'var(--muted)';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      setStatus('', 'var(--muted)');
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          form.reset();
+          setStatus('✓ Message sent — thanks, I\'ll get back to you soon.', 'var(--accent)');
+        } else {
+          const data = await res.json().catch(() => ({}));
+          const err = (data.errors && data.errors.map(e => e.message).join(', ')) || 'Something went wrong. Please try again.';
+          setStatus('✗ ' + err, '#ff6b6b');
+        }
+      } catch (err) {
+        setStatus('✗ Network error. Please try again.', '#ff6b6b');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    });
   })();
 
   // Hero stagger visible immediately
