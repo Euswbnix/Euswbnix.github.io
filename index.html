@@ -483,6 +483,17 @@
     border: 1px solid var(--rule);
   }
 
+  /* Projects sequential reveal — cards appear one by one (2x2 order: TL → TR → BL → BR) */
+  #projects .projects-grid.stagger > * {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  #projects .projects-grid.stagger.visible > *:nth-child(1) { opacity: 1; transform: none; transition-delay: 0s; }
+  #projects .projects-grid.stagger.visible > *:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.40s; }
+  #projects .projects-grid.stagger.visible > *:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.80s; }
+  #projects .projects-grid.stagger.visible > *:nth-child(4) { opacity: 1; transform: none; transition-delay: 1.20s; }
+
   .project-card {
     background: var(--paper);
     padding: 2.5rem;
@@ -763,16 +774,16 @@
   /* stagger children */
   .stagger > * {
     opacity: 0;
-    transform: translateY(16px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
   }
 
   .stagger.visible > *:nth-child(1) { opacity: 1; transform: none; transition-delay: 0s; }
-  .stagger.visible > *:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.08s; }
-  .stagger.visible > *:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.16s; }
-  .stagger.visible > *:nth-child(4) { opacity: 1; transform: none; transition-delay: 0.24s; }
-  .stagger.visible > *:nth-child(5) { opacity: 1; transform: none; transition-delay: 0.32s; }
-  .stagger.visible > *:nth-child(6) { opacity: 1; transform: none; transition-delay: 0.40s; }
+  .stagger.visible > *:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.25s; }
+  .stagger.visible > *:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.50s; }
+  .stagger.visible > *:nth-child(4) { opacity: 1; transform: none; transition-delay: 0.75s; }
+  .stagger.visible > *:nth-child(5) { opacity: 1; transform: none; transition-delay: 1.00s; }
+  .stagger.visible > *:nth-child(6) { opacity: 1; transform: none; transition-delay: 1.25s; }
 
   /* typing cursor */
   .cursor {
@@ -827,7 +838,7 @@
     .skills-grid { grid-template-columns: 1fr 1fr; }
     .skill-group:nth-child(3n) { border-right: 1px solid var(--rule); }
     .skill-group:nth-child(2n) { border-right: none; }
-    .projects-grid { grid-template-columns: 1fr; }
+    /* .projects-grid { grid-template-columns: 1fr; } */
     .life-grid { grid-template-columns: 1fr; }
     .life-aside { border-left: none; border-top: 1px solid var(--rule); padding-left: 0; padding-top: 2rem; }
     footer { flex-direction: column; gap: 1rem; text-align: center; }
@@ -854,7 +865,7 @@
   <div class="hero-left fade-in">
     <div class="hero-issue">Portfolio — 2025</div>
     <h1 class="hero-name">
-      Alex<br><em>Huang</em>
+      Alex <em>H.</em>
     </h1>
     <p class="hero-tagline">
       Applied Statistics & Mathematics at the University of Toronto.<br>
@@ -868,7 +879,7 @@
 
   <div class="hero-right stagger">
     <div class="hero-stat">
-      <div class="stat-num">U of T</div>
+      <div class="stat-num">UofT</div>
       <div class="stat-label">Applied Statistics Specialist</div>
     </div>
     <div class="hero-stat">
@@ -980,7 +991,7 @@
     <span class="section-index">03</span>
     <h2 class="section-title">Skills &amp; Tools</h2>
   </div>
-  <div class="skills-grid stagger">
+  <div class="skills-grid typewriter-skills">
     <div class="skill-group">
       <div class="skill-group-title">Languages</div>
       <ul class="skill-list">
@@ -1195,8 +1206,10 @@
       <div class="contact-links">
         <a href="mailto:jizheng.huang@mail.utoronto.ca" class="contact-link-item">
           <span class="contact-link-label">Email</span>
-          <span class="contact-link-value">jizheng.huang@mail.utoronto.ca</span>
-          <span class="contact-link-value">euswbnix@gmail.com</span>
+          <span class="contact-link-value" style="display:flex;flex-direction:column;gap:0.25rem;">
+            <span>jizheng.huang@mail.utoronto.ca</span>
+            <span>euswbnix@gmail.com</span>
+          </span>
         </a>
         <a href="https://github.com/" target="_blank" class="contact-link-item">
           <span class="contact-link-label">GitHub</span>
@@ -1279,6 +1292,72 @@
   }, { threshold: 0.12 });
 
   document.querySelectorAll('.fade-in, .stagger').forEach(el => observer.observe(el));
+
+  // ── Skills typewriter animation (fully parallel — every element types at the same time) ──
+  (function initSkillsTypewriter() {
+    const skillsSection = document.getElementById('skills');
+    const skillsGrid = document.querySelector('.typewriter-skills');
+    if (!skillsGrid || !skillsSection) return;
+
+    // Collect every text target, reserve width to avoid layout jump, then blank it
+    const targets = [];
+    skillsGrid.querySelectorAll('.skill-group-title, .skill-list li').forEach(el => {
+      const text = el.textContent.trim();
+      targets.push({ el, text });
+      // Reserve vertical space with a non-breaking space so the layout stays intact
+      el.textContent = '\u00A0';
+    });
+
+    // Small helper to escape text for innerHTML
+    function esc(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    let started = false;
+    function runTyping() {
+      if (started) return;
+      started = true;
+      targets.forEach(({ el, text }) => {
+        el.innerHTML = '<span class="cursor"></span>';
+        let c = 0;
+        (function tick() {
+          c++;
+          el.innerHTML = esc(text.slice(0, c)) + '<span class="cursor"></span>';
+          if (c < text.length) {
+            setTimeout(tick, 55);
+          } else {
+            // Keep cursor blinking for a moment, then remove
+            setTimeout(() => {
+              el.innerHTML = esc(text);
+            }, 1200);
+          }
+        })();
+      });
+    }
+
+    // Primary trigger: IntersectionObserver with generous rootMargin
+    const skillsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          skillsObserver.disconnect();
+          runTyping();
+        }
+      });
+    }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
+    skillsObserver.observe(skillsSection);
+
+    // Fallback: also listen to scroll in case the observer misses
+    function scrollFallback() {
+      const rect = skillsSection.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.9 && rect.bottom > 0) {
+        window.removeEventListener('scroll', scrollFallback);
+        runTyping();
+      }
+    }
+    window.addEventListener('scroll', scrollFallback, { passive: true });
+    // Check once on load in case skills is already in view
+    setTimeout(scrollFallback, 100);
+  })();
 
   // Hero stagger visible immediately
   document.querySelector('.hero-left').classList.add('visible');
