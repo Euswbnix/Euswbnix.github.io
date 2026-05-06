@@ -339,7 +339,6 @@
   <script>
     /* ── Prevent browser from restoring last scroll position on refresh ── */
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-    window.scrollTo(0, 0);
 
     (function initTypingAnimation() {
       const el = document.getElementById('hero-tagline');
@@ -546,59 +545,70 @@
 
     /* Skill orbs now rendered by Three.js module script below */
 
-    (function initProjectScrollAnim() {
-      const groups = [
-        { section: '#about',    selector: '.about-exp-card', step: 260, keepVisible: false },
-        { section: '#projects', selector: '.project-card',   step: 320, keepVisible: true  },
-      ];
+    /* ── Card scroll-reveal animation ──
+       Start observers only after the page has fully loaded AND the browser
+       has had one frame to settle at scroll position 0.
+       This prevents the observer from firing based on a stale (restored)
+       scroll position and ensures consistent behaviour across all browsers. */
+    window.addEventListener('load', function () {
+      /* Force scroll to top AFTER load so browser scroll-restoration can't
+         override it. requestAnimationFrame gives the browser one paint cycle
+         to finish any internal scroll restoration before we reset. */
+      requestAnimationFrame(function () {
+        window.scrollTo(0, 0);
 
-      groups.forEach(({ section, selector, step, keepVisible }) => {
-        const cards = document.querySelectorAll(selector);
-        if (!cards.length) return;
-        const host = document.querySelector(section);
-        if (!host) return;
+        var groups = [
+          { section: '#about',    selector: '.about-exp-card', step: 260, keepVisible: false },
+          { section: '#projects', selector: '.project-card',   step: 320, keepVisible: true  },
+        ];
 
-        let animating = false;
+        groups.forEach(function (g) {
+          var cards = document.querySelectorAll(g.selector);
+          if (!cards.length) return;
+          var host = document.querySelector(g.section);
+          if (!host) return;
 
-        const reveal = () => {
-          if (animating) return;
-          animating = true;
-          cards.forEach((card, i) => {
-            setTimeout(() => {
-              card.classList.remove('proj-hidden');
-              card.classList.add('proj-visible');
-            }, i * step);
-          });
-        };
+          var animating = false;
 
-        const hide = () => {
-          if (keepVisible) return;
-          animating = false;
-          cards.forEach(card => {
-            card.classList.remove('proj-visible');
-            card.classList.add('proj-hidden');
-          });
-        };
+          var reveal = function () {
+            if (animating) return;
+            animating = true;
+            cards.forEach(function (card, i) {
+              setTimeout(function () {
+                card.classList.remove('proj-hidden');
+                card.classList.add('proj-visible');
+              }, i * g.step);
+            });
+          };
 
-        /* Observe the section itself — same logic as desktop.
-           threshold: 0.01 so even 1% of the (tall) section triggers on mobile.
-           Hide only when the section is back below the viewport (user scrolled up past it),
-           so upward scrolling through the section never re-triggers the animation. */
-        const observer = new IntersectionObserver(entries => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              reveal();
-            } else {
-              /* rect.top > 0  →  section is below the viewport
-                 (user hasn't reached it yet, or scrolled far back up past it) */
-              if (entry.boundingClientRect.top > 0) hide();
-            }
-          });
-        }, { threshold: 0.01 });
+          var hide = function () {
+            if (g.keepVisible) return;
+            animating = false;
+            cards.forEach(function (card) {
+              card.classList.remove('proj-visible');
+              card.classList.add('proj-hidden');
+            });
+          };
 
-        observer.observe(host);
+          /* After scrollTo(0,0) every section should be below the viewport
+             (except possibly #about). Use threshold 0.05 — section needs 5%
+             visible before cards reveal, preventing accidental initial fires. */
+          var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                reveal();
+              } else {
+                /* section.top > 0 → section is below the viewport:
+                   either not yet reached, or user scrolled back up past it */
+                if (entry.boundingClientRect.top > 0) hide();
+              }
+            });
+          }, { threshold: 0.05 });
+
+          observer.observe(host);
+        });
       });
-    })();
+    });
 
     (function initTiltEffect() {
       if (typeof VanillaTilt === 'undefined') return;
