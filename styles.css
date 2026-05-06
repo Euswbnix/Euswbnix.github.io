@@ -182,7 +182,6 @@ main {
   color: var(--text-secondary);
   font-size: 1.02rem;
   line-height: 1.6;
-  min-height: calc(1.6em * 2);
   margin-top: 0.3rem;
 }
 .hero-tagline .cursor {
@@ -1182,6 +1181,11 @@ footer {
     justify-items: center;
   }
   .skills-row + .skills-row { margin-top: 1.2rem; }
+  /* Center lone last item when row count is odd (e.g. 7 items → last one alone) */
+  .skills-row .skill-sphere-item:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1246,6 +1250,10 @@ footer {
     justify-items: center;
   }
   .skills-row + .skills-row { margin-top: 1rem; }
+  .skills-row .skill-sphere-item:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
   .skill-sphere-canvas { width: 80px; height: 80px; }
   .projects-grid { grid-template-columns: 1fr; }
   #projects .proj-hidden {

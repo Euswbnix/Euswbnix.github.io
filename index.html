@@ -573,6 +573,7 @@
             card.classList.add('proj-hidden');
           });
         };
+        const isMobile = window.innerWidth < 1080;
         const observer = new IntersectionObserver(entries => {
           entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -583,8 +584,8 @@
             }
           });
         }, {
-          threshold: 0.12,
-          rootMargin: '0px 0px -8% 0px'
+          threshold: isMobile ? 0.02 : 0.12,
+          rootMargin: isMobile ? '0px' : '0px 0px -8% 0px'
         });
         observer.observe(host);
       });
