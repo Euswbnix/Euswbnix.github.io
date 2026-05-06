@@ -606,8 +606,11 @@
               if (entry.isIntersecting) {
                 reveal();
               } else {
-                /* section.top > 0 → section is below the viewport */
-                if (entry.boundingClientRect.top > 0) hide();
+                var r = entry.boundingClientRect;
+                /* Reset whenever the section has fully left the viewport —
+                   either sunk below (top > 0) or scrolled past above (bottom < 0).
+                   This means the next visit from any direction re-plays the animation. */
+                if (r.top > 0 || r.bottom < 0) hide();
               }
             });
           }, {
