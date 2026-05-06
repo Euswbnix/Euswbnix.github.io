@@ -542,11 +542,11 @@
 
     (function initProjectScrollAnim() {
       const groups = [
-        { section: '#about', selector: '.about-exp-card', step: 340 },
-        { section: '#projects', selector: '.project-card', step: 420 },
+        { section: '#about', selector: '.about-exp-card', step: 340, keepVisible: false },
+        { section: '#projects', selector: '.project-card', step: 420, keepVisible: true },
       ];
 
-      groups.forEach(({ section, selector, step }) => {
+      groups.forEach(({ section, selector, step, keepVisible }) => {
         const cards = document.querySelectorAll(selector);
         if (!cards.length) return;
         let animating = false;
@@ -564,6 +564,7 @@
           });
         };
         const hide = () => {
+          if (keepVisible) return;
           animating = false;
           cards.forEach(card => {
             card.classList.remove('proj-visible');
@@ -580,8 +581,8 @@
             }
           });
         }, {
-          threshold: 0.45,
-          rootMargin: '0px 0px -18% 0px'
+          threshold: 0.12,
+          rootMargin: '0px 0px -8% 0px'
         });
         observer.observe(host);
       });
@@ -1323,12 +1324,14 @@
       let vy = 0;
 
       host.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
         drag = true;
         px = e.clientX;
         py = e.clientY;
         host.setPointerCapture(e.pointerId);
       });
       host.addEventListener('pointermove', (e) => {
+        if (drag) e.preventDefault();
         if (!drag) return;
         const dx = e.clientX - px;
         const dy = e.clientY - py;
@@ -1534,10 +1537,12 @@
 
         let dragging = false, lx = 0, ly = 0;
         el.addEventListener('pointerdown', e => {
+          e.preventDefault();
           dragging = true; lx = e.clientX; ly = e.clientY;
           el.setPointerCapture(e.pointerId);
         });
         el.addEventListener('pointermove', e => {
+          if (dragging) e.preventDefault();
           if (!dragging) return;
           mesh.rotation.y += (e.clientX - lx) * 0.012;
           mesh.rotation.x += (e.clientY - ly) * 0.012;
