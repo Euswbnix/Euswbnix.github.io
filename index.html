@@ -337,6 +337,10 @@
   </main>
 
   <script>
+    /* ── Prevent browser from restoring last scroll position on refresh ── */
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+
     (function initTypingAnimation() {
       const el = document.getElementById('hero-tagline');
       if (!el) return;
@@ -544,50 +548,37 @@
 
     (function initProjectScrollAnim() {
       const groups = [
-        { section: '#about', selector: '.about-exp-card', step: 340, keepVisible: false },
-        { section: '#projects', selector: '.project-card', step: 420, keepVisible: true },
+        { selector: '.about-exp-card', step: 260, keepVisible: false },
+        { selector: '.project-card',   step: 320, keepVisible: true  },
       ];
 
-      groups.forEach(({ section, selector, step, keepVisible }) => {
-        const cards = document.querySelectorAll(selector);
+      groups.forEach(({ selector, step, keepVisible }) => {
+        const cards = Array.from(document.querySelectorAll(selector));
         if (!cards.length) return;
-        let animating = false;
-        const host = document.querySelector(section);
-        if (!host) return;
 
-        const reveal = () => {
-          if (animating) return;
-          animating = true;
-          cards.forEach((card, i) => {
-            setTimeout(() => {
-              card.classList.remove('proj-hidden');
-              card.classList.add('proj-visible');
-            }, i * step);
-          });
-        };
-        const hide = () => {
-          if (keepVisible) return;
-          animating = false;
-          cards.forEach(card => {
-            card.classList.remove('proj-visible');
-            card.classList.add('proj-hidden');
-          });
-        };
-        const isMobile = window.innerWidth < 1080;
+        /* Observe each card individually — fires as soon as 12% of the
+           card enters the viewport, regardless of how tall the section is. */
         const observer = new IntersectionObserver(entries => {
           entries.forEach(entry => {
+            const card = entry.target;
             if (entry.isIntersecting) {
-              reveal();
-            } else {
-              const rect = entry.boundingClientRect;
-              if (rect.top > 0) hide();
+              const idx = cards.indexOf(card);
+              setTimeout(() => {
+                card.classList.remove('proj-hidden');
+                card.classList.add('proj-visible');
+              }, idx * step);
+              if (keepVisible) observer.unobserve(card);
+            } else if (!keepVisible) {
+              /* Hide only when the card has scrolled above the viewport */
+              if (entry.boundingClientRect.bottom < 0) {
+                card.classList.remove('proj-visible');
+                card.classList.add('proj-hidden');
+              }
             }
           });
-        }, {
-          threshold: isMobile ? 0.02 : 0.12,
-          rootMargin: isMobile ? '0px' : '0px 0px -8% 0px'
-        });
-        observer.observe(host);
+        }, { threshold: 0.12 });
+
+        cards.forEach(card => observer.observe(card));
       });
     })();
 
