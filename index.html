@@ -548,37 +548,55 @@
 
     (function initProjectScrollAnim() {
       const groups = [
-        { selector: '.about-exp-card', step: 260, keepVisible: false },
-        { selector: '.project-card',   step: 320, keepVisible: true  },
+        { section: '#about',    selector: '.about-exp-card', step: 260, keepVisible: false },
+        { section: '#projects', selector: '.project-card',   step: 320, keepVisible: true  },
       ];
 
-      groups.forEach(({ selector, step, keepVisible }) => {
-        const cards = Array.from(document.querySelectorAll(selector));
+      groups.forEach(({ section, selector, step, keepVisible }) => {
+        const cards = document.querySelectorAll(selector);
         if (!cards.length) return;
+        const host = document.querySelector(section);
+        if (!host) return;
 
-        /* Observe each card individually — fires as soon as 12% of the
-           card enters the viewport, regardless of how tall the section is. */
+        let animating = false;
+
+        const reveal = () => {
+          if (animating) return;
+          animating = true;
+          cards.forEach((card, i) => {
+            setTimeout(() => {
+              card.classList.remove('proj-hidden');
+              card.classList.add('proj-visible');
+            }, i * step);
+          });
+        };
+
+        const hide = () => {
+          if (keepVisible) return;
+          animating = false;
+          cards.forEach(card => {
+            card.classList.remove('proj-visible');
+            card.classList.add('proj-hidden');
+          });
+        };
+
+        /* Observe the section itself — same logic as desktop.
+           threshold: 0.01 so even 1% of the (tall) section triggers on mobile.
+           Hide only when the section is back below the viewport (user scrolled up past it),
+           so upward scrolling through the section never re-triggers the animation. */
         const observer = new IntersectionObserver(entries => {
           entries.forEach(entry => {
-            const card = entry.target;
             if (entry.isIntersecting) {
-              const idx = cards.indexOf(card);
-              setTimeout(() => {
-                card.classList.remove('proj-hidden');
-                card.classList.add('proj-visible');
-              }, idx * step);
-              if (keepVisible) observer.unobserve(card);
-            } else if (!keepVisible) {
-              /* Hide only when the card has scrolled above the viewport */
-              if (entry.boundingClientRect.bottom < 0) {
-                card.classList.remove('proj-visible');
-                card.classList.add('proj-hidden');
-              }
+              reveal();
+            } else {
+              /* rect.top > 0  →  section is below the viewport
+                 (user hasn't reached it yet, or scrolled far back up past it) */
+              if (entry.boundingClientRect.top > 0) hide();
             }
           });
-        }, { threshold: 0.12 });
+        }, { threshold: 0.01 });
 
-        cards.forEach(card => observer.observe(card));
+        observer.observe(host);
       });
     })();
 
