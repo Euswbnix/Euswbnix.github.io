@@ -1,1943 +1,1591 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alex — Statistics & DL</title>
-<link rel="icon" type="image/jpeg" href="IMG_3642.jpeg">
-<link rel="apple-touch-icon" href="IMG_3642.jpeg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
-<style>
-  :root {
-    --ink: #e8edf2;
-    --paper: #0d1117;
-    --paper2: #111820;
-    --accent: #00d4aa;
-    --accent2: #4da6ff;
-    --muted: #6b7d8f;
-    --rule: rgba(255,255,255,0.07);
-    --serif: 'Playfair Display', Georgia, serif;
-    --mono: 'DM Mono', monospace;
-    --sans: 'DM Sans', sans-serif;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: var(--sans);
-    font-weight: 300;
-    line-height: 1.7;
-    overflow-x: hidden;
-  }
-
-  /* ── DOT GRID + GLOW OVERLAY ── */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: radial-gradient(circle, rgba(0,212,170,0.07) 1px, transparent 1px);
-    background-size: 32px 32px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse 80% 50% at 50% -5%, rgba(0,212,170,0.1) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* ── NAV ── */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.2rem 4rem;
-    background: rgba(13,17,23,0.88);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .nav-logo {
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    text-decoration: none;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 2.5rem;
-    list-style: none;
-  }
-
-  .nav-links a {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    text-decoration: none;
-    transition: color 0.2s;
-    position: relative;
-  }
-
-  .nav-links a::after {
-    content: '';
-    position: absolute;
-    bottom: -2px; left: 0;
-    width: 0; height: 1px;
-    background: var(--accent);
-    transition: width 0.25s;
-  }
-
-  .nav-links a:hover { color: var(--ink); }
-  .nav-links a:hover::after { width: 100%; }
-
-  /* ── HERO ── */
-  #home {
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding-top: 5rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  /* Particle network background canvas */
-  #hero-particles {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  .hero-left, .hero-right {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Three.js 3D scene container */
-  .hero-3d {
-    width: 100%;
-    height: 280px;
-    margin-bottom: 2rem;
-    position: relative;
-    cursor: grab;
-  }
-  .hero-3d:active { cursor: grabbing; }
-  .hero-3d canvas {
-    display: block;
-    width: 100% !important;
-    height: 100% !important;
-  }
-  .hero-3d-hint {
-    position: absolute;
-    bottom: 0.4rem;
-    right: 0.4rem;
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    opacity: 0.6;
-    pointer-events: none;
-  }
-
-  /* Project card 3D tilt */
-  .project-card {
-    transform-style: preserve-3d;
-    transition: transform 0.25s ease-out, background 0.2s, box-shadow 0.2s;
-    will-change: transform;
-  }
-  .project-card > * {
-    transform: translateZ(0);
-  }
-
-  .hero-left {
-    padding: 8rem 4rem 4rem 4rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    border-right: 1px solid var(--rule);
-  }
-
-  .hero-issue {
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
-
-  .hero-issue::before {
-    content: '';
-    display: inline-block;
-    width: 24px; height: 1px;
-    background: var(--accent);
-  }
-
-  .hero-name {
-    font-family: var(--serif);
-    font-size: clamp(3.5rem, 6vw, 5.5rem);
-    font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    margin-bottom: 1.5rem;
-  }
-
-  .hero-name em {
-    font-style: italic;
-    color: var(--accent);
-  }
-
-  .hero-tagline {
-    font-family: var(--sans);
-    font-size: 1rem;
-    font-weight: 300;
-    color: var(--muted);
-    max-width: 38ch;
-    line-height: 1.6;
-    border-left: 2px solid var(--accent);
-    padding-left: 1rem;
-    min-height: calc(1.6em * 3);
-  }
-
-  .hero-cta {
-    margin-top: 3rem;
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .btn {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 0.7rem 1.5rem;
-    border: 1px solid rgba(255,255,255,0.15);
-    color: var(--ink);
-    text-decoration: none;
-    transition: all 0.2s;
-    background: transparent;
-    cursor: pointer;
-    position: relative;
-    z-index: 1;
-  }
-
-  .btn:hover {
-    background: rgba(255,255,255,0.06);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  .btn-fill {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #0d1117;
-    font-weight: 500;
-  }
-
-  .btn-fill:hover {
-    background: #00f0c0;
-    border-color: #00f0c0;
-    color: #0d1117;
-  }
-
-  .hero-right {
-    padding: 8rem 4rem 4rem 4rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 2.5rem;
-  }
-
-  .hero-stat {
-    padding-bottom: 2rem;
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .hero-stat:last-child { border-bottom: none; }
-
-  .stat-num {
-    font-family: var(--mono);
-    font-size: 2.6rem;
-    font-weight: 400;
-    line-height: 1;
-    color: var(--accent);
-    letter-spacing: -0.02em;
-  }
-
-  .stat-label {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-top: 0.3rem;
-    white-space: nowrap;
-  }
-
-  /* ── SECTION SHELL ── */
-  section {
-    padding: 7rem 4rem;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .section-header {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: baseline;
-    gap: 1.5rem;
-    margin-bottom: 4rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .section-index {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--accent);
-    letter-spacing: 0.1em;
-  }
-
-  .section-title {
-    font-family: var(--serif);
-    font-size: clamp(2rem, 3.5vw, 2.8rem);
-    font-weight: 700;
-    line-height: 1.1;
-  }
-
-  /* ── FULL-WIDTH DIVIDER SECTIONS ── */
-  .full-section {
-    width: 100%;
-    background: var(--paper2);
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-  }
-  .full-section .section-inner {
-    padding: 7rem 4rem;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  /* ── ABOUT ── */
-  #about .about-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5rem;
-    align-items: start;
-  }
-
-  .about-text p {
-    font-size: 1.05rem;
-    color: var(--ink);
-    margin-bottom: 1.2rem;
-  }
-
-  .about-text p:first-child {
-    font-family: var(--serif);
-    font-size: 1.25rem;
-    font-style: italic;
-    color: var(--muted);
-  }
-
-  .about-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 2rem;
-  }
-
-  .tag {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 0.35rem 0.75rem;
-    border: 1px solid rgba(0,212,170,0.2);
-    color: var(--accent);
-    background: rgba(0,212,170,0.06);
-  }
-
-  .about-sidebar {
-    border-left: 1px solid var(--rule);
-    padding-left: 3rem;
-  }
-
-  .sidebar-item {
-    margin-bottom: 2rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .sidebar-item:last-child { border-bottom: none; }
-
-  .sidebar-label {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 0.4rem;
-  }
-
-  .sidebar-value {
-    font-size: 0.95rem;
-    color: var(--ink);
-  }
-
-  .sidebar-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.7rem;
-  }
-  .sidebar-link {
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 0.4rem 0.7rem;
-    border: 1px solid rgba(0,212,170,0.25);
-    color: var(--accent);
-    background: rgba(0,212,170,0.04);
-    text-decoration: none;
-    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-  }
-  .sidebar-link:hover {
-    background: rgba(0,212,170,0.14);
-    border-color: var(--accent);
-    transform: translateY(-1px);
-  }
-
-  /* ── EDUCATION ── */
-  #education {
-    background: var(--paper2);
-    max-width: 100%;
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-  }
-
-  #education > .section-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 7rem 4rem;
-  }
-
-  .edu-timeline {
-    position: relative;
-    padding-left: 3rem;
-  }
-
-  .edu-timeline::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 1px;
-    background: var(--rule);
-  }
-
-  .edu-item {
-    position: relative;
-    margin-bottom: 3.5rem;
-    padding-bottom: 3.5rem;
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .edu-item:last-child { border-bottom: none; margin-bottom: 0; }
-
-  .edu-item::before {
-    content: '';
-    position: absolute;
-    left: -3.35rem; top: 0.4rem;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: 2px solid var(--paper2);
-  }
-
-  .edu-year {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    margin-bottom: 0.5rem;
-  }
-
-  .edu-degree {
-    font-family: var(--serif);
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 0.3rem;
-  }
-
-  .edu-school {
-    font-size: 0.95rem;
-    color: var(--accent2);
-    font-weight: 500;
-    margin-bottom: 0.8rem;
-  }
-
-  .edu-desc {
-    font-size: 0.9rem;
-    color: var(--muted);
-    max-width: 65ch;
-  }
-
-  /* ── SKILLS ── */
-  #skills .skills-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0;
-    border: 1px solid var(--rule);
-  }
-
-  .skill-group {
-    padding: 2.5rem;
-    border-right: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-    background: var(--paper);
-    transition: background 0.2s;
-  }
-
-  .skill-group:hover {
-    background: rgba(0,212,170,0.04);
-  }
-
-  .skill-group:nth-child(3n) { border-right: none; }
-  .skill-group:nth-last-child(-n+3) { border-bottom: none; }
-
-  .skill-group-title {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 1.2rem;
-    padding-bottom: 0.8rem;
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .skill-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .skill-list li {
-    font-family: var(--mono);
-    font-size: 0.82rem;
-    color: var(--ink);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .skill-list li::before {
-    content: '—';
-    color: var(--muted);
-    font-size: 0.7rem;
-  }
-
-  /* ── PROJECTS ── */
-  #projects .projects-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-    background: var(--rule);
-    border: 1px solid var(--rule);
-  }
-
-  /* Projects sequential reveal — cards appear one by one (2x2 order: TL → TR → BL → BR) */
-  #projects .projects-grid.stagger > * {
-    opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-  }
-  #projects .projects-grid.stagger.visible > *:nth-child(1) { opacity: 1; transform: none; transition-delay: 0s; }
-  #projects .projects-grid.stagger.visible > *:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.40s; }
-  #projects .projects-grid.stagger.visible > *:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.80s; }
-  #projects .projects-grid.stagger.visible > *:nth-child(4) { opacity: 1; transform: none; transition-delay: 1.20s; }
-
-  .project-card {
-    background: var(--paper);
-    padding: 2.5rem;
-    transition: background 0.2s, box-shadow 0.2s;
-    position: relative;
-  }
-
-  .project-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border: 1px solid transparent;
-    transition: border-color 0.2s;
-    pointer-events: none;
-  }
-
-  .project-card:hover {
-    background: var(--paper);
-  }
-
-  .project-card:hover::before {
-    border-color: rgba(0,212,170,0.08);
-  }
-
-  .project-num {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
-    color: var(--accent);
-    margin-bottom: 1rem;
-  }
-
-  .project-title {
-    font-family: var(--serif);
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 0.8rem;
-    line-height: 1.2;
-  }
-
-  .project-desc {
-    font-size: 0.88rem;
-    color: var(--muted);
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-  }
-
-  .project-stack {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .project-stack span {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 0.25rem 0.5rem;
-    background: rgba(0,212,170,0.08);
-    color: var(--accent);
-    border: 1px solid rgba(0,212,170,0.2);
-  }
-
-  .project-link {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent2);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    transition: gap 0.2s;
-  }
-
-  .project-link:hover { gap: 0.8rem; }
-
-  /* ── LIFE ── */
-  #life {
-    background: var(--paper2);
-    max-width: 100%;
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-  }
-
-  #life > .section-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 7rem 4rem;
-  }
-
-  .life-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: 3rem;
-    align-items: start;
-  }
-
-  .life-main p {
-    font-family: var(--serif);
-    font-size: 1.2rem;
-    font-style: italic;
-    color: var(--muted);
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-  }
-
-  .life-main p.body-text {
-    font-family: var(--sans);
-    font-style: normal;
-    font-size: 0.95rem;
-    color: var(--ink);
-  }
-
-  .life-aside {
-    border-left: 1px solid var(--rule);
-    padding-left: 2rem;
-  }
-
-  .life-aside-title {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 1rem;
-  }
-
-  .interest-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-    font-size: 0.88rem;
-    color: var(--ink);
-  }
-
-  .interest-icon {
-    font-size: 1rem;
-    flex-shrink: 0;
-    margin-top: 0.1rem;
-    display: inline-block;
-  }
-
-  /* ── LIFE SECTION ANIMATIONS ── */
-  /* Body paragraphs cascade in from below when life-main becomes visible */
-  .life-main > p {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
-                transform 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
-  }
-  .life-main.visible > p:nth-child(1) { opacity: 1; transform: none; transition-delay: 0s; }
-  .life-main.visible > p:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.18s; }
-  .life-main.visible > p:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.36s; }
-  .life-main.visible > p:nth-child(4) { opacity: 1; transform: none; transition-delay: 0.54s; }
-  .life-main.visible > p:nth-child(5) { opacity: 1; transform: none; transition-delay: 0.72s; }
-
-  /* "Currently into" — title drops, items slide in from right one by one */
-  .life-aside .life-aside-title {
-    opacity: 0;
-    transform: translateY(-10px);
-    transition: opacity 0.55s ease, transform 0.55s ease;
-  }
-  .life-aside.visible .life-aside-title {
-    opacity: 1;
-    transform: none;
-  }
-
-  .life-aside .interest-item {
-    opacity: 0;
-    transform: translateX(28px);
-    transition: opacity 0.65s cubic-bezier(0.22, 0.61, 0.36, 1),
-                transform 0.65s cubic-bezier(0.22, 0.61, 0.36, 1);
-  }
-  .life-aside.visible .interest-item:nth-of-type(1) { opacity: 1; transform: none; transition-delay: 0.20s; }
-  .life-aside.visible .interest-item:nth-of-type(2) { opacity: 1; transform: none; transition-delay: 0.32s; }
-  .life-aside.visible .interest-item:nth-of-type(3) { opacity: 1; transform: none; transition-delay: 0.44s; }
-  .life-aside.visible .interest-item:nth-of-type(4) { opacity: 1; transform: none; transition-delay: 0.56s; }
-  .life-aside.visible .interest-item:nth-of-type(5) { opacity: 1; transform: none; transition-delay: 0.68s; }
-  .life-aside.visible .interest-item:nth-of-type(6) { opacity: 1; transform: none; transition-delay: 0.80s; }
-
-  /* Subtle pulse on interest icons after they've appeared */
-  @keyframes iconPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.18); }
-  }
-  .life-aside.visible .interest-item:hover .interest-icon {
-    animation: iconPulse 0.7s ease;
-  }
-
-  /* Motto block fades in with a left-border draw */
-  .life-aside blockquote {
-    opacity: 0;
-    transform: translateY(14px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
-  }
-  .life-aside.visible blockquote {
-    opacity: 1;
-    transform: none;
-    transition-delay: 0.25s;
-  }
-  .life-aside.visible blockquote ~ div {
-    animation: fadeUp 0.7s ease forwards;
-  }
-  .life-aside blockquote ~ div { opacity: 0; }
-  .life-aside.visible blockquote ~ div:nth-of-type(1) { animation-delay: 0.45s; }
-  .life-aside.visible blockquote ~ div:nth-of-type(2) { animation-delay: 0.55s; }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: none; }
-  }
-
-  /* ── CONTACT ── */
-  #contact .contact-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5rem;
-    align-items: start;
-  }
-
-  .contact-intro {
-    font-family: var(--serif);
-    font-size: 1.6rem;
-    font-style: italic;
-    line-height: 1.3;
-    color: var(--ink);
-    margin-bottom: 2rem;
-  }
-
-  .contact-links {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .contact-link-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid var(--rule);
-    text-decoration: none;
-    color: var(--ink);
-    transition: padding-left 0.2s;
-  }
-
-  .contact-link-item:hover { padding-left: 0.5rem; }
-
-  .contact-link-label {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    width: 5rem;
-  }
-
-  .contact-link-value {
-    font-size: 0.95rem;
-    color: var(--accent2);
-  }
-
-  .contact-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-
-  .form-group label {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .form-group input,
-  .form-group textarea {
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--rule);
-    padding: 0.6rem 0;
-    font-family: var(--sans);
-    font-size: 0.9rem;
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.2s;
-    resize: none;
-  }
-
-  .form-group input:focus,
-  .form-group textarea:focus {
-    border-color: var(--accent);
-  }
-
-  .form-group input::placeholder,
-  .form-group textarea::placeholder {
-    color: var(--muted);
-    font-size: 0.85rem;
-  }
-
-  /* ── FOOTER ── */
-  footer {
-    background: #080c10;
-    color: var(--paper);
-    padding: 3rem 4rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid var(--rule);
-  }
-
-  .footer-logo {
-    font-family: var(--serif);
-    font-size: 1.2rem;
-    font-style: italic;
-  }
-
-  .footer-copy {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.08em;
-    color: rgba(245,242,235,0.4);
-  }
-
-  /* ── ANIMATIONS ── */
-  .fade-in {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-  }
-
-  .fade-in.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* stagger children */
-  .stagger > * {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-  }
-
-  .stagger.visible > *:nth-child(1) { opacity: 1; transform: none; transition-delay: 0s; }
-  .stagger.visible > *:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.25s; }
-  .stagger.visible > *:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.50s; }
-  .stagger.visible > *:nth-child(4) { opacity: 1; transform: none; transition-delay: 0.75s; }
-  .stagger.visible > *:nth-child(5) { opacity: 1; transform: none; transition-delay: 1.00s; }
-  .stagger.visible > *:nth-child(6) { opacity: 1; transform: none; transition-delay: 1.25s; }
-
-  /* typing cursor */
-  .cursor {
-    display: inline-block;
-    width: 2px;
-    height: 1em;
-    background: var(--accent);
-    margin-left: 3px;
-    vertical-align: text-bottom;
-    animation: blink 1s step-end infinite;
-    box-shadow: 0 0 8px var(--accent);
-  }
-
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-
-  /* horizontal rule accent */
-  .rule-accent {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin: 3rem 0;
-  }
-
-  .rule-accent::before, .rule-accent::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--rule);
-  }
-
-  .rule-accent span {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  /* ══════════════════════════════════════════════ RESPONSIVE ══ */
-
-  /* Tablet */
-  @media (max-width: 1024px) {
-    section { padding: 6rem 3rem; }
-    .full-section .section-inner { padding: 6rem 3rem; }
-    .hero-left { padding: 7rem 3rem 3rem; }
-    .hero-right { padding: 7rem 3rem 3rem; }
-    #projects .projects-grid { grid-template-columns: 1fr 1fr; }
-    #skills .skills-grid { grid-template-columns: 1fr 1fr 1fr; }
-  }
-
-  /* Mobile / narrow tablets */
-  @media (max-width: 820px) {
-    /* ── NAV ── */
-    nav {
-      padding: 0.9rem 1.25rem;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    .nav-logo { font-size: 0.78rem; }
-    .nav-links {
-      gap: 0.9rem;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-    .nav-links a { font-size: 0.62rem; letter-spacing: 0.08em; }
-
-    /* ── HERO ── */
-    #home {
-      grid-template-columns: 1fr;
-      min-height: auto;
-      padding-top: 4rem;
-    }
-    .hero-left {
-      border-right: none;
-      border-bottom: 1px solid var(--rule);
-      padding: 4rem 1.5rem 3rem;
-    }
-    .hero-name { font-size: clamp(2.8rem, 11vw, 4rem); margin-bottom: 1.25rem; }
-    .hero-tagline { font-size: 0.95rem; max-width: 100%; min-height: calc(1.6em * 4); }
-    .hero-cta { flex-wrap: wrap; gap: 0.75rem; }
-    .btn { font-size: 0.68rem; padding: 0.7rem 1.1rem; }
-
-    .hero-right {
-      padding: 2.5rem 1.5rem 4rem;
-      gap: 1.5rem;
-    }
-    .hero-3d { height: 220px; margin-bottom: 1rem; }
-    .stat-num { font-size: 2rem; }
-
-    /* ── SECTION PADDING ── */
-    section { padding: 4rem 1.5rem; }
-    .full-section .section-inner { padding: 4rem 1.5rem; }
-    .section-header { margin-bottom: 2.5rem; gap: 1rem; }
-    .section-title { font-size: clamp(1.8rem, 7vw, 2.4rem); }
-
-    /* ── ABOUT ── */
-    #about .about-grid {
-      grid-template-columns: 1fr;
-      gap: 2.5rem;
-    }
-    .about-sidebar {
-      border-left: none;
-      border-top: 1px solid var(--rule);
-      padding-left: 0;
-      padding-top: 2rem;
-    }
-
-    /* ── EDUCATION TIMELINE ── */
-    .edu-timeline { padding-left: 1.5rem; }
-    .edu-item { padding-left: 1.25rem; }
-
-    /* ── SKILLS: 2 columns on mobile ── */
-    #skills .skills-grid { grid-template-columns: 1fr 1fr; }
-    .skill-group { padding: 1.5rem 1.25rem; }
-    .skill-group:nth-child(3n) { border-right: 1px solid var(--rule); }
-    .skill-group:nth-child(2n) { border-right: none; }
-    .skill-group:nth-last-child(-n+3) { border-bottom: 1px solid var(--rule); }
-    .skill-group:nth-last-child(-n+2) { border-bottom: none; }
-
-    /* ── PROJECTS: single column stacked ── */
-    #projects .projects-grid { grid-template-columns: 1fr; }
-    .project-card { padding: 1.75rem 1.5rem; }
-    .project-title { font-size: 1.2rem; }
-    /* Disable tilt on touch devices — it'd glitch */
-    .project-card { transform: none !important; }
-
-    /* ── LIFE ── */
-    .life-grid {
-      grid-template-columns: 1fr;
-      gap: 2.5rem;
-    }
-    .life-aside {
-      border-left: none;
-      border-top: 1px solid var(--rule);
-      padding-left: 0;
-      padding-top: 2rem;
-    }
-
-    /* ── CONTACT ── */
-    #contact .contact-grid {
-      grid-template-columns: 1fr;
-      gap: 3rem;
-    }
-    .contact-form { padding: 0; }
-    .form-group input, .form-group textarea { font-size: 0.95rem; }
-
-    /* ── FOOTER ── */
-    footer {
-      flex-direction: column;
-      gap: 0.75rem;
-      text-align: center;
-      padding: 2rem 1.5rem;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alex Portfolio</title>
+  <link rel="icon" type="image/jpeg" href="IMG_3642.jpeg" />
+  <link rel="apple-touch-icon" href="IMG_3642.jpeg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
     }
   }
-
-  /* Very small phones */
-  @media (max-width: 480px) {
-    .nav-links {
-      width: 100%;
-      justify-content: space-between;
-      gap: 0.4rem;
-    }
-    .nav-links a { font-size: 0.58rem; }
-    .hero-name { font-size: clamp(2.4rem, 12vw, 3.2rem); }
-    .hero-3d { height: 180px; }
-    #skills .skills-grid { grid-template-columns: 1fr; }
-    .skill-group:nth-child(n) { border-right: none; border-bottom: 1px solid var(--rule); }
-    .skill-group:last-child { border-bottom: none; }
-    .contact-link-label { width: 4rem; font-size: 0.62rem; }
-    .contact-link-value { font-size: 0.85rem; word-break: break-all; }
-  }
-</style>
+  </script>
 </head>
 <body>
+  <div class="overlay-grid" aria-hidden="true"></div>
 
-<!-- ══════════════════════════════════════════════ NAV ══ -->
-<nav>
-  <a href="#home" class="nav-logo">A.H. / Portfolio</a>
-  <ul class="nav-links">
-    <li><a href="#about">About</a></li>
-    <li><a href="#education">Education</a></li>
-    <li><a href="#skills">Skills</a></li>
-    <li><a href="#projects">Projects</a></li>
-    <li><a href="#life">Life</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
-</nav>
+  <header class="topbar">
+    <a class="brand" href="#home">Alex Portfolio</a>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#education">Education</a>
+      <a href="#projects">Projects</a>
+      <a href="#life">Life</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
 
-<!-- ══════════════════════════════════════════════ HERO ══ -->
-<div id="home">
-  <canvas id="hero-particles"></canvas>
-  <div class="hero-left fade-in">
-    <div class="hero-issue">Portfolio — 2026</div>
-    <h1 class="hero-name">
-      Alex <em>H.</em>
-    </h1>
-    <p class="hero-tagline">
-      Applied Statistics & Mathematics at the University of Toronto.<br>
-      Researching at the intersection of <span id="typed-role"></span><span class="cursor"></span>
-    </p>
-    <div class="hero-cta">
-      <a href="#projects" class="btn btn-fill">View Projects</a>
-      <a href="#contact" class="btn">Get in Touch</a>
-    </div>
-  </div>
-
-  <div class="hero-right stagger">
-    <div class="hero-3d" id="hero-3d">
-      <span class="hero-3d-hint">drag to rotate</span>
-    </div>
-    <div class="hero-stat">
-      <div class="stat-num">UofT</div>
-      <div class="stat-label">Applied Statistics Specialist</div>
-    </div>
-    <div class="hero-stat">
-      <div class="stat-num">Natural Language Processing</div>
-      <div class="stat-label">Primary Research Focus</div>
-    </div>
-    <div class="hero-stat">
-      <div class="stat-num">∞</div>
-      <div class="stat-label">Curiosity-driven learning</div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════════ ABOUT ══ -->
-<section id="about">
-  <div class="section-header fade-in">
-    <span class="section-index">01</span>
-    <h2 class="section-title">About Me</h2>
-  </div>
-  <div class="about-grid">
-    <div class="about-text fade-in">
-      <p>Statistics is the language through which uncertainty becomes knowledge.</p>
-      <p>
-        I'm a student at the University of Toronto pursuing an Applied Statistics Specialist
-        and Applied Mathematics Major. My work sits at the boundary between
-        rigorous statistical theory and practical machine learning, with a particular
-        focus on Natural Language Processing.
-      </p>
-      <p>
-        I'm drawn to problems where mathematical structure meets real-world complexity —
-        building models that are both theoretically grounded and genuinely useful.
-        From Bayesian inference and probabilistic modeling to deep learning architectures,
-        I enjoy the full spectrum from theory to implementation.
-      </p>
-      <p>
-        Outside of research, I care deeply about clean, reproducible code and the kind
-        of collaborative science that moves the field forward.
-      </p>
-      <div class="about-tags">
-        <span class="tag">Deep Learning</span>
-        <span class="tag">NLP</span>
-        <span class="tag">Applied Mathematics</span>
-        <span class="tag">Bayesian Statistics</span>
-        <span class="tag">Data Visualization</span>
-        <span class="tag">Probabilistic Modeling</span>
-      </div>
-    </div>
-
-    <div class="about-sidebar fade-in">
-      <div class="sidebar-item">
-        <div class="sidebar-label">Institution</div>
-        <div class="sidebar-value">University of Toronto</div>
-        <div class="sidebar-links">
-          <a class="sidebar-link" href="https://www.utoronto.ca/" target="_blank" rel="noopener">UTSG ↗</a>
-          <a class="sidebar-link" href="https://www.utm.utoronto.ca/" target="_blank" rel="noopener">UTM ↗</a>
+  <main>
+    <section id="home" class="hero">
+      <div id="fx-bg"></div>
+      <div class="hero-left">
+        <div class="hero-note">Portfolio - 2026</div>
+        <h1 class="hero-title">Alex <span class="accent">H.</span></h1>
+        <div class="hero-desc">
+          <p class="hero-copy">Applied Statistics & Mathematics<br>University of Toronto</p>
+          <p class="hero-tagline" id="hero-tagline"></p>
+        </div>
+        <div class="hero-cta">
+          <a class="btn main" href="#projects">View Projects</a>
+          <a class="btn" href="#contact">Get In Touch</a>
         </div>
       </div>
-      <div class="sidebar-item">
-        <div class="sidebar-label">Program</div>
-        <div class="sidebar-value">Applied Statistics Specialist<br>Applied Mathematics Major</div>
+      <div class="hero-right">
+        <div class="hero-orb hero-earth" id="hero-earth" aria-label="Interactive Earth"></div>
+        <div class="hero-meta"><div class="big">UofT</div><div class="small">Applied Statistics Specialist</div></div>
+        <div class="hero-meta"><div class="big">Natural Language Processing</div><div class="small">Primary Research Focus</div></div>
       </div>
-      <div class="sidebar-item">
-        <div class="sidebar-label">Research Interests</div>
-        <div class="sidebar-value">NLP, Probabilistic Models,<br>Statistical Learning Theory</div>
-      </div>
-      <div class="sidebar-item">
-        <div class="sidebar-label">Location</div>
-        <div class="sidebar-value">Toronto, Ontario, Canada</div>
-      </div>
-      <div class="sidebar-item">
-        <div class="sidebar-label">Status</div>
-        <div class="sidebar-value">Open to research &amp; internship opportunities</div>
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- ══════════════════════════════════════════════ EDUCATION ══ -->
-<div class="full-section" id="education">
-  <div class="section-inner">
-    <div class="section-header fade-in">
-      <span class="section-index">02</span>
-      <h2 class="section-title">Education</h2>
-    </div>
-    <div class="edu-timeline stagger">
-      <div class="edu-item">
-        <div class="edu-year">2023.9 — Present</div>
-        <div class="edu-degree">B.Sc. Applied Statistics Specialist &amp; Applied Mathematics Major</div>
-        <div class="edu-school">University of Toronto, Faculty of Arts &amp; Science</div>
-        <div class="edu-desc">
-          Honours program focusing on statistical theory, machine learning, stochastic processes,
-          and real analysis. Relevant courses include Statistical Learning, Bayesian Methods,
-          Regression Analysis, and Mathematical Statistics.
+    <section id="about">
+      <div class="section-header"><span class="section-index">01</span><h2 class="section-title">About Me</h2></div>
+      <div class="about-layout">
+        <div class="about-left">
+          <blockquote class="about-quote"><em>Statistics is the language through which uncertainty becomes knowledge.</em></blockquote>
+          <p class="about-bio">I'm a student at the University of Toronto pursuing an Applied Statistics Specialist and Applied Mathematics Major. My work sits at the boundary between rigorous statistical theory and practical machine learning, with a particular focus on Natural Language Processing.</p>
+          <p class="about-bio">I'm drawn to problems where mathematical structure meets real-world complexity &mdash; building models that are both theoretically grounded and genuinely useful. From Bayesian inference and probabilistic modeling to deep learning architectures, I enjoy the full spectrum from theory to implementation.</p>
+          <p class="about-bio">Outside of research, I care deeply about clean, reproducible code and the kind of collaborative science that moves the field forward.</p>
+          <div class="about-tags">
+            <span class="about-tag">Deep Learning</span>
+            <span class="about-tag">NLP</span>
+            <span class="about-tag">Applied Mathematics</span>
+            <span class="about-tag">Bayesian Statistics</span>
+            <span class="about-tag">Data Visualization</span>
+            <span class="about-tag">Probabilistic Modeling</span>
+          </div>
         </div>
-      </div>
-      <div class="edu-item">
-        <div class="edu-year">Relevant Coursework</div>
-        <div class="edu-degree">Machine Learning &amp; Data Science</div>
-        <div class="edu-school">Machine Learning · Bayesian Methods · Regression · Mathematical Statistics</div>
-        <div class="edu-desc">
-          Hands-on experience with ML pipelines including classification, regression,
-          neural networks, and Bayesian inference. Projects spanning NLP, image classification,
-          and statistical modeling from first principles.
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════════ SKILLS ══ -->
-<section id="skills">
-  <div class="section-header fade-in">
-    <span class="section-index">03</span>
-    <h2 class="section-title">Skills &amp; Tools</h2>
-  </div>
-  <div class="skills-grid typewriter-skills">
-    <div class="skill-group">
-      <div class="skill-group-title">Languages</div>
-      <ul class="skill-list">
-        <li>Python</li>
-        <li>R</li>
-        <li>C</li>
-        <li>SQL</li>
-        <li>Java</li>
-      </ul>
-    </div>
-    <div class="skill-group">
-      <div class="skill-group-title">Machine Learning</div>
-      <ul class="skill-list">
-        <li>PyTorch</li>
-        <li>scikit-learn</li>
-        <li>Hugging Face</li>
-        <li>NumPy / SciPy</li>
-        <li>Pandas</li>
-        <li>JAX</li>
-      </ul>
-    </div>
-    <div class="skill-group">
-      <div class="skill-group-title">Statistics</div>
-      <ul class="skill-list">
-        <li>Bayesian Inference</li>
-        <li>Regression Analysis</li>
-        <li>Time Series</li>
-        <li>Stan / PyMC</li>
-        <li>Probabilistic Programming</li>
-      </ul>
-    </div>
-    <div class="skill-group">
-      <div class="skill-group-title">NLP &amp; Deep Learning</div>
-      <ul class="skill-list">
-        <li>Transformer Models</li>
-        <li>LSTM</li>
-        <li>Text Classification</li>
-        <li>TF-IDF / Embeddings</li>
-        <li>Fine-tuning LLMs</li>
-        <li>Sequence Modeling</li>
-      </ul>
-    </div>
-    <div class="skill-group">
-      <div class="skill-group-title">Infrastructure</div>
-      <ul class="skill-list">
-        <li>Ubuntu / Linux</li>
-        <li>Git &amp; GitHub</li>
-        <li>Docker</li>
-        <li>Jupyter / Quarto</li>
-        <li>SLURM / HPC</li>
-      </ul>
-    </div>
-    <div class="skill-group">
-      <div class="skill-group-title">Visualization</div>
-      <ul class="skill-list">
-        <li>ggplot2</li>
-        <li>Matplotlib / Seaborn</li>
-        <li>Plotly</li>
-        <li>R Shiny</li>
-        <li>D3.js</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════════════ PROJECTS ══ -->
-<section id="projects" style="background: var(--paper2); max-width: 100%; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 7rem 0;">
-  <div style="max-width: 1200px; margin: 0 auto; padding: 0 4rem;">
-    <div class="section-header fade-in">
-      <span class="section-index">04</span>
-      <h2 class="section-title">Projects</h2>
-    </div>
-    <div class="projects-grid stagger">
-
-      <div class="project-card">
-        <div class="project-num">Project 01</div>
-        <div class="project-title">Painting Classification Pipeline</div>
-        <div class="project-desc">
-          End-to-end ML pipeline for art classification as part of the CSC311 challenge.
-          Built data cleaning, feature engineering with TF-IDF, and trained Logistic Regression
-          models achieving competitive accuracy with a numpy-only inference script for submission.
-        </div>
-        <div class="project-stack">
-          <span>Python</span><span>NumPy</span><span>scikit-learn</span><span>TF-IDF</span>
-        </div>
-        <a href="https://github.com/Euswbnix/CSC311_MLProject" target="_blank" rel="noopener" class="project-link">View Details →</a>
-      </div>
-
-      <div class="project-card">
-        <div class="project-num">Project 02</div>
-        <div class="project-title">PaintApp — Interactive Drawing Tool</div>
-        <div class="project-desc">
-          A feature-rich desktop painting application built from scratch with an intuitive
-          UI for sketching and image editing. Supports multiple brush styles, color palettes,
-          shape tools, and undo/redo history with a clean, responsive canvas experience.
-        </div>
-        <div class="project-stack">
-          <span>Java</span><span>Swing</span><span>OOP</span><span>GUI</span><span>MVC</span>
-        </div>
-        <a href="https://github.com/Euswbnix/PaintApp" target="_blank" rel="noopener" class="project-link">View Code →</a>
-      </div>
-
-      <div class="project-card">
-        <div class="project-num">Project 03</div>
-        <div class="project-title">Interactive Statistical Dashboard</div>
-        <div class="project-desc">
-          R Shiny application with interactive ggplot2 and Plotly visualizations.
-          Features adaptive label positioning for vertical reference lines across
-          polynomial and KNN regression modes with dynamic axis scaling.
-        </div>
-        <div class="project-stack">
-          <span>R</span><span>Shiny</span><span>ggplot2</span><span>Plotly</span>
-        </div>
-        <a href="https://github.com/Euswbnix/AKMproject" target="_blank" rel="noopener" class="project-link">View App →</a>
-      </div>
-
-      <div class="project-card">
-        <div class="project-num">Project 04</div>
-        <div class="project-title">Transformer-based Machine Translation <span style="opacity:.6;font-size:.7em;">(In Progress)</span></div>
-        <div class="project-desc">
-          An upcoming project implementing a Transformer encoder-decoder architecture from
-          scratch for neural machine translation. Will cover multi-head self-attention,
-          positional encoding, BPE tokenization, and BLEU evaluation, with training
-          experiments on parallel corpora.
-        </div>
-        <div class="project-stack">
-          <span>PyTorch</span><span>Transformer</span><span>NLP</span><span>Attention</span>
-        </div>
-        <a href="https://github.com/Euswbnix/Machine_translation" target="_blank" rel="noopener" class="project-link">View Repo →</a>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════════════ LIFE ══ -->
-<div class="full-section" id="life" style="background: var(--paper);">
-  <div class="section-inner">
-    <div class="section-header fade-in">
-      <span class="section-index">05</span>
-      <h2 class="section-title">Life &amp; Interests</h2>
-    </div>
-    <div class="life-grid">
-      <div class="life-main fade-in">
-        <p>"The purpose of computing is insight, not numbers."<br>— Richard Hamming</p>
-        <p class="body-text">
-          Beyond the mathematics and code, I'm someone who finds joy in understanding how things
-          work at a deep level — whether that's a statistical model, a piece of music, or a
-          philosophical argument. I believe the best researchers are those who stay genuinely
-          curious about the world.
-        </p>
-        <p class="body-text">
-          I'm particularly interested in the philosophy of statistics — questions about what
-          probability <em>means</em>, how we should reason under uncertainty, and the epistemology
-          of scientific inference. These aren't just academic questions; they shape how I approach
-          every analysis.
-        </p>
-        <p class="body-text">
-          Music has been a central part of my life since I was four and a half, when I first
-          picked up the cello. I spent four years as a member of the symphony orchestra at the
-          High School Attached to Northeast Normal University, which gave me a deep love for
-          ensemble playing and classical repertoire that has stayed with me ever since.
-        </p>
-        <p class="body-text">
-          Outside of academia and music, I enjoy playing badminton, exploring new ideas across
-          disciplines, and the occasional late-night debugging session that somehow becomes a
-          learning adventure.
-        </p>
-      </div>
-
-      <div class="life-aside fade-in">
-        <div class="life-aside-title">Currently into</div>
-        <div class="interest-item">
-          <span class="interest-icon">🎨</span>
-          <span>Researching UI &amp; interaction design methods</span>
-        </div>
-        <div class="interest-item">
-          <span class="interest-icon">🎵</span>
-          <span>Listening to pop music while coding</span>
-        </div>
-        <div class="interest-item">
-          <span class="interest-icon">💬</span>
-          <span>Distilling chat conversations into LLM system prompts</span>
-        </div>
-        <div class="interest-item">
-          <span class="interest-icon">🔬</span>
-          <span>Exploring causal inference methods</span>
-        </div>
-        <div class="interest-item">
-          <span class="interest-icon">🏸</span>
-          <span>Playing badminton</span>
+        <div class="about-right">
+          <div class="about-info-block">
+            <div class="about-info-label">Institution</div>
+            <div class="about-info-value">University of Toronto</div>
+            <div class="about-info-links">
+              <a href="https://www.utoronto.ca/" target="_blank" rel="noopener" class="about-link-btn">UTSG</a>
+              <a href="https://www.utm.utoronto.ca/" target="_blank" rel="noopener" class="about-link-btn">UTM</a>
+            </div>
+          </div>
+          <div class="about-info-block">
+            <div class="about-info-label">Program</div>
+            <div class="about-info-value">Applied Statistics Specialist</div>
+            <div class="about-info-value">Applied Mathematics Major</div>
+          </div>
+          <div class="about-info-block">
+            <div class="about-info-label">Research Interests</div>
+            <div class="about-info-value">NLP, Probabilistic Models,<br>Statistical Learning Theory</div>
+          </div>
+          <div class="about-info-block">
+            <div class="about-info-label">Location</div>
+            <div class="about-info-value">Toronto, Ontario, Canada</div>
+          </div>
+          <div class="about-info-block">
+            <div class="about-info-label">Status</div>
+            <div class="about-info-value">Open to research &amp; internship opportunities</div>
+          </div>
         </div>
       </div>
 
-      <div class="life-aside fade-in">
-        <div class="life-aside-title">Motto</div>
-        <blockquote style="font-family: var(--serif); font-style: italic; font-size: 1.05rem; line-height: 1.5; color: var(--muted); border-left: 2px solid var(--accent); padding-left: 1rem; margin-bottom: 1.5rem;">
-          "All models are wrong, but some are useful."
-        </blockquote>
-        <div style="font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.25rem;">— George Box</div>
-        <div style="font-family: var(--mono); font-size: 0.68rem; color: var(--muted);">Statistician</div>
+      <div class="about-exp-grid">
+        <article class="about-exp-card proj-hidden">
+          <div class="about-exp-geo" data-geo="nlp">
+            <div class="about-exp-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 4a3 3 0 0 0-3 3v1a2.5 2.5 0 0 0-2 2.45A2.5 2.5 0 0 0 6 12.9V14a3 3 0 0 0 3 3"/>
+                <path d="M15 4a3 3 0 0 1 3 3v1a2.5 2.5 0 0 1 2 2.45A2.5 2.5 0 0 1 18 12.9V14a3 3 0 0 1-3 3"/>
+                <path d="M12 4v13"/>
+                <path d="M9 8h3M12 10h3M9 12h3M12 14h3"/>
+                <path d="M10 17.2c.2 1.6.9 2.8 2 2.8s1.8-1.2 2-2.8"/>
+              </svg>
+            </div>
+          </div>
+          <div class="about-exp-title">NLP Research</div>
+          <div class="about-exp-sub">Language Modeling</div>
+          <p class="about-exp-desc">Focused on Transformer-based machine translation, attention analysis, and evaluation design. Building from theory to implementation with reproducible experiments.</p>
+        </article>
+        <article class="about-exp-card proj-hidden">
+          <div class="about-exp-geo" data-geo="stats">
+            <div class="about-exp-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19h16"/>
+                <path d="M6 16.2V13M10 16.2V10M14 16.2V12M18 16.2V7.8"/>
+                <path d="M6 9.5l3.3-2.8 3.1 1.8L18 4.8"/>
+                <path d="M15.8 4.8H18v2.2"/>
+              </svg>
+            </div>
+          </div>
+          <div class="about-exp-title">Statistical Modeling</div>
+          <div class="about-exp-sub">Applied Inference</div>
+          <p class="about-exp-desc">Applied Bayesian thinking and statistical learning methods to practical prediction tasks, with emphasis on uncertainty interpretation and robust model diagnostics.</p>
+        </article>
+        <article class="about-exp-card proj-hidden">
+          <div class="about-exp-geo" data-geo="mlsys">
+            <div class="about-exp-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="2.6"/>
+                <path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a1.8 1.8 0 0 1-2.5 2.5l-.1-.1a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V20a1.8 1.8 0 1 1-3.6 0v-.2a1 1 0 0 0-.6-.9 1 1 0 0 0-1.1.2l-.1.1a1.8 1.8 0 1 1-2.5-2.5l.1-.1a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H4a1.8 1.8 0 1 1 0-3.6h.2a1 1 0 0 0 .9-.6 1 1 0 0 0-.2-1.1l-.1-.1a1.8 1.8 0 0 1 2.5-2.5l.1.1a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.9V4a1.8 1.8 0 1 1 3.6 0v.2a1 1 0 0 0 .6.9 1 1 0 0 0 1.1-.2l.1-.1a1.8 1.8 0 0 1 2.5 2.5l-.1.1a1 1 0 0 0-.2 1.1 1 1 0 0 0 .9.6h.2a1.8 1.8 0 1 1 0 3.6h-.2a1 1 0 0 0-.9.6Z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="about-exp-title">ML Systems</div>
+          <div class="about-exp-sub">End-to-End Pipelines</div>
+          <p class="about-exp-desc">Delivered data cleaning, feature engineering, model training, and validation workflows across coursework projects in Python, NumPy, scikit-learn, and PyTorch.</p>
+        </article>
+        <article class="about-exp-card proj-hidden">
+          <div class="about-exp-geo" data-geo="viz">
+            <div class="about-exp-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="12" width="3.6" height="6"/>
+                <rect x="10.2" y="9" width="3.6" height="9"/>
+                <rect x="16.4" y="6" width="3.6" height="12"/>
+                <path d="M4 20h16"/>
+              </svg>
+            </div>
+          </div>
+          <div class="about-exp-title">Visualization & Tools</div>
+          <div class="about-exp-sub">Interactive Analytics</div>
+          <p class="about-exp-desc">Built interactive dashboards and desktop tools, combining statistical storytelling with practical UI design in R Shiny, Plotly, Java Swing, and custom app workflows.</p>
+        </article>
       </div>
-    </div>
-  </div>
-</div>
+    </section>
 
-<!-- ══════════════════════════════════════════════ CONTACT ══ -->
-<section id="contact">
-  <div class="section-header fade-in">
-    <span class="section-index">06</span>
-    <h2 class="section-title">Get in Touch</h2>
-  </div>
-  <div class="contact-grid">
-    <div class="fade-in">
-      <p class="contact-intro">
-        Always open to research collaborations, internship opportunities,
-        or simply an interesting conversation.
-      </p>
-      <div class="contact-links">
-        <div class="contact-link-item">
-          <span class="contact-link-label">Email</span>
-          <span class="contact-link-value" style="display:flex;flex-direction:column;gap:0.25rem;">
-            <a href="mailto:jizheng.huang@mail.utoronto.ca">jizheng.huang@mail.utoronto.ca</a>
-            <a href="mailto:euswbnix@gmail.com">euswbnix@gmail.com</a>
-          </span>
+    <section id="education">
+      <div class="section-header"><span class="section-index">02</span><h2 class="section-title">Education</h2></div>
+      <div class="panel">
+        <div class="edu-item"><div class="edu-year">2023.9 — Present</div><div class="edu-main">HBSc Applied Statistics · University of Toronto</div></div>
+        <div class="edu-item"><div class="edu-year">2024 — Present</div><div class="edu-main">NLP Research · Deep Learning + LLM Systems</div></div>
+      </div>
+    </section>
+
+    <section id="projects">
+      <div class="section-header"><span class="section-index">03</span><h2 class="section-title">Projects</h2></div>
+      <div class="projects-grid">
+        <article class="project-card proj-hidden">
+          <div class="proj-num">Project 01</div>
+          <h3 class="project-title">Painting Classification Pipeline</h3>
+          <p class="project-desc">End-to-end ML pipeline for art classification as part of the CSC311 challenge. Built data cleaning, feature engineering with TF-IDF, and trained Logistic Regression models achieving competitive accuracy with a numpy-only inference script for submission.</p>
+          <div class="stack">
+            <span class="about-tag">Python</span><span class="about-tag">NumPy</span><span class="about-tag">scikit-learn</span><span class="about-tag">TF-IDF</span>
+          </div>
+          <a class="proj-link" href="https://github.com/Euswbnix/CSC311_MLProject" target="_blank" rel="noopener">View Details &rarr;</a>
+        </article>
+        <article class="project-card proj-hidden">
+          <div class="proj-num">Project 02</div>
+          <h3 class="project-title">PaintApp &mdash; Interactive Drawing Tool</h3>
+          <p class="project-desc">A feature-rich desktop painting application built from scratch with an intuitive UI for sketching and image editing. Supports multiple brush styles, color palettes, shape tools, and undo/redo history with a clean, responsive canvas experience.</p>
+          <div class="stack">
+            <span class="about-tag">Java</span><span class="about-tag">Swing</span><span class="about-tag">OOP</span><span class="about-tag">GUI</span><span class="about-tag">MVC</span>
+          </div>
+          <a class="proj-link" href="https://github.com/Euswbnix/PaintApp" target="_blank" rel="noopener">View Code &rarr;</a>
+        </article>
+        <article class="project-card proj-hidden">
+          <div class="proj-num">Project 03</div>
+          <h3 class="project-title">Interactive Statistical Dashboard</h3>
+          <p class="project-desc">R Shiny application with interactive ggplot2 and Plotly visualizations. Features adaptive label positioning for vertical reference lines across polynomial and KNN regression modes with dynamic axis scaling.</p>
+          <div class="stack">
+            <span class="about-tag">R</span><span class="about-tag">Shiny</span><span class="about-tag">ggplot2</span><span class="about-tag">Plotly</span>
+          </div>
+          <a class="proj-link" href="https://github.com/Euswbnix/AKMproject" target="_blank" rel="noopener">View App &rarr;</a>
+        </article>
+        <article class="project-card proj-hidden">
+          <div class="proj-num">Project 04</div>
+          <h3 class="project-title">Transformer-based Machine Translation <em>(In Progress)</em></h3>
+          <p class="project-desc">An upcoming project implementing a Transformer encoder-decoder architecture from scratch for neural machine translation. Will cover multi-head self-attention, positional encoding, BPE tokenization, and BLEU evaluation, with training experiments on parallel corpora.</p>
+          <div class="stack">
+            <span class="about-tag">PyTorch</span><span class="about-tag">Transformer</span><span class="about-tag">NLP</span><span class="about-tag">Attention</span>
+          </div>
+          <a class="proj-link" href="https://github.com/Euswbnix/Machine_translation" target="_blank" rel="noopener">View Repo &rarr;</a>
+        </article>
+      </div>
+      <div class="skills-spheres" id="skills">
+        <div class="skills-row">
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="PY" data-color="#3776AB" data-icon="python/python-original.svg"></div><div class="skill-sphere-name">Python</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="R" data-color="#276DC3" data-icon="r/r-original.svg"></div><div class="skill-sphere-name">R</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="C" data-color="#A8B9CC" data-icon="c/c-original.svg"></div><div class="skill-sphere-name">C</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Jv" data-color="#ED8B00" data-icon="java/java-original.svg"></div><div class="skill-sphere-name">Java</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="PT" data-color="#EE4C2C" data-icon="pytorch/pytorch-original.svg"></div><div class="skill-sphere-name">PyTorch</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="skl" data-color="#F7931E" data-icon="scikitlearn/scikitlearn-original.svg"></div><div class="skill-sphere-name">scikit-learn</div></div>
         </div>
-        <a href="https://github.com/euswbnix" target="_blank" rel="noopener" class="contact-link-item">
-          <span class="contact-link-label">GitHub</span>
-          <span class="contact-link-value">github.com/euswbnix</span>
-        </a>
-        <a href="https://linkedin.com/in/jizheng-huang-7b2494351" target="_blank" rel="noopener" class="contact-link-item">
-          <span class="contact-link-label">LinkedIn</span>
-          <span class="contact-link-value">linkedin.com/in/jizheng-huang-7b2494351</span>
-        </a>
-        <a href="#" class="contact-link-item">
-          <span class="contact-link-label">Resume</span>
-          <span class="contact-link-value">Download CV (PDF)</span>
-        </a>
+        <div class="skills-row">
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="HF" data-color="#FFD21E"></div><div class="skill-sphere-name">Hugging Face</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Np" data-color="#4DABCF" data-icon="numpy/numpy-original.svg"></div><div class="skill-sphere-name">NumPy/SciPy</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Pd" data-color="#150458" data-icon="pandas/pandas-original.svg"></div><div class="skill-sphere-name">Pandas</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Dk" data-color="#2496ED" data-icon="docker/docker-original.svg"></div><div class="skill-sphere-name">Docker</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Git" data-color="#F05032" data-icon="github/github-original.svg"></div><div class="skill-sphere-name">Git/GitHub</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Lx" data-color="#FCC624" data-icon="linux/linux-original.svg"></div><div class="skill-sphere-name">Linux</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Mpl" data-color="#11557C" data-icon="matplotlib/matplotlib-original.svg"></div><div class="skill-sphere-name">Matplotlib</div></div>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <form class="contact-form fade-in" action="https://formspree.io/f/xzdkodkr" method="POST">
-      <div class="form-group">
-        <label for="cf-name">Your Name</label>
-        <input id="cf-name" type="text" name="name" placeholder="e.g. Jane Smith" required>
+    <section id="life">
+      <div class="section-header life-header"><span class="section-index">04</span><h2 class="section-title life-title">Life &amp; Interests</h2></div>
+      <div class="life-layout">
+        <article class="life-main">
+          <blockquote class="life-quote">"The purpose of computing is insight, not numbers."<br><span>&mdash; Richard Hamming</span></blockquote>
+          <p>Beyond mathematics and code, I care about understanding how things work at a deeper level &mdash; whether that is a statistical model, a piece of music, or a philosophical argument. Curiosity is the common thread behind my research and my daily life.</p>
+          <p>I am especially interested in the philosophy of statistics: what probability means, how we reason under uncertainty, and how assumptions shape conclusions. Those questions influence how I design models, evaluate evidence, and communicate results.</p>
+          <p>Music has been a core part of my life since childhood. I studied cello for years and played in school symphony settings, which taught me disciplined practice, collaboration, and sensitivity to structure and rhythm.</p>
+          <p>Outside academics, I enjoy badminton, long walks, and late-night debugging sessions that often turn into mini learning adventures.</p>
+        </article>
+
+        <aside class="life-side">
+          <div class="life-side-block">
+            <h3 class="life-side-title">Currently Into</h3>
+            <ul class="life-list">
+              <li><span class="life-bullet">•</span><span>Researching UI and interaction design methods</span></li>
+              <li><span class="life-bullet">•</span><span>Listening to pop music while coding</span></li>
+              <li><span class="life-bullet">•</span><span>Distilling chat logs into practical LLM prompts</span></li>
+              <li><span class="life-bullet">•</span><span>Exploring causal inference and robust evaluation</span></li>
+              <li><span class="life-bullet">•</span><span>Playing badminton and keeping a steady routine</span></li>
+            </ul>
+          </div>
+          <div class="life-side-block life-motto">
+            <h3 class="life-side-title">Motto</h3>
+            <p class="life-motto-quote">"All models are wrong, but some are useful."</p>
+            <div class="life-motto-author">&mdash; George Box</div>
+            <div class="life-motto-role">Statistician</div>
+          </div>
+        </aside>
       </div>
-      <div class="form-group">
-        <label for="cf-email">Email Address</label>
-        <input id="cf-email" type="email" name="email" placeholder="jane@example.com" required>
+    </section>
+
+    <section id="contact">
+      <div class="section-header"><span class="section-index">05</span><h2 class="section-title">Contact</h2></div>
+      <div class="contact-card">
+        <div class="contact-card-inner">
+          <div class="contact-layout">
+            <div class="contact-left">
+              <div class="contact-header">
+                <p class="contact-kicker">Get In Touch</p>
+                <h2 class="contact-heading">Contact</h2>
+                <div class="contact-socials">
+                  <a href="https://linkedin.com/in/jizheng-huang-7b2494351" target="_blank" rel="noopener" class="social-icon" aria-label="LinkedIn">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                  </a>
+                  <a href="https://github.com/euswbnix" target="_blank" rel="noopener" class="social-icon" aria-label="GitHub">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                  </a>
+                  <a href="mailto:jizheng.huang@mail.utoronto.ca" class="social-icon" aria-label="Email">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z"/><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z"/></svg>
+                  </a>
+                </div>
+              </div>
+              <form class="contact-form" action="https://formspree.io/f/xzdkodkr" method="POST">
+                <div class="form-group">
+                  <label class="form-label">Your Name</label>
+                  <input type="text" name="name" placeholder="What's your name" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Your Email</label>
+                  <input type="email" name="email" placeholder="What's your email" required />
+                </div>
+                <div class="form-group form-group--grow">
+                  <label class="form-label">Your message</label>
+                  <textarea name="message" placeholder="What do you want to say" required></textarea>
+                </div>
+                <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
+                <div class="form-footer">
+                  <button type="submit" class="contact-send-btn">Send</button>
+                  <p class="form-status" style="display:none;font-family:var(--mono);font-size:0.78rem;"></p>
+                </div>
+              </form>
+            </div>
+
+            <div class="transformer-panel" id="transformer-panel">
+              <div class="tf-head">
+                <div class="tf-kicker">Live Decode</div>
+                <h3>Transformer Autoregressive Token Generation</h3>
+              </div>
+              <div class="tf-net-wrap">
+                <canvas id="tf-net" aria-label="Neural network visualization"></canvas>
+              </div>
+              <div class="tf-stream" id="tf-stream"></div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="cf-message">Message</label>
-        <textarea id="cf-message" name="message" rows="5" placeholder="What would you like to discuss?" required></textarea>
+    </section>
+
+    <footer>
+      <div class="footer-mini">
+        <img src="IMG_3642.jpeg" alt="Alex avatar" class="footer-avatar" />
+        <div class="footer-meta">
+          <div class="footer-name">Alex Huang</div>
+          <a class="footer-email" href="mailto:jizheng.huang.work@gmail.com">Work Email: jizheng.huang.work@gmail.com</a>
+          <a class="footer-email" href="mailto:euswbnix@gmail.com">Personal Email: euswbnix@gmail.com</a>
+          <div class="footer-copy">© Copyright 2026. All Rights Reserved.</div>
+        </div>
       </div>
-      <!-- Honeypot field to reduce spam -->
-      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
-      <button type="submit" class="btn btn-fill" style="align-self: flex-start; border: none; cursor: pointer;">Send Message</button>
-      <p class="form-status" style="display:none;font-family:var(--mono);font-size:0.8rem;margin-top:0.5rem;"></p>
-    </form>
-  </div>
-</section>
+    </footer>
+  </main>
 
-<!-- ══════════════════════════════════════════════ FOOTER ══ -->
-<footer>
-  <div class="footer-logo">Alex Huang</div>
-  <div class="footer-copy">© 2026 · Built with care · Toronto, Canada</div>
-</footer>
+  <script>
+    (function initTypingAnimation() {
+      const el = document.getElementById('hero-tagline');
+      if (!el) return;
+      const prefix = 'Researching at the intersection of ';
+      const suffixes = [
+        'NLP and deep learning.',
+        'probabilistic models.',
+        'statistics & language.',
+        'math and code.'
+      ];
+      const cursor = document.createElement('span');
+      cursor.className = 'cursor';
+      let lineIdx = 0, charIdx = 0, deleting = false;
 
-<script>
-  // ── Typed role text ──
-  const roles = [
-    'statistics & language.',
-    'NLP and deep learning.',
-    'probabilistic models.',
-    'math and code.',
-  ];
-  let roleIndex = 0, charIndex = 0, deleting = false;
-  const el = document.getElementById('typed-role');
-
-  function typeLoop() {
-    const current = roles[roleIndex];
-    if (!deleting) {
-      el.textContent = current.slice(0, ++charIndex);
-      if (charIndex === current.length) {
-        deleting = true;
-        setTimeout(typeLoop, 2200);
-        return;
-      }
-    } else {
-      el.textContent = current.slice(0, --charIndex);
-      if (charIndex === 0) {
-        deleting = false;
-        roleIndex = (roleIndex + 1) % roles.length;
-      }
-    }
-    setTimeout(typeLoop, deleting ? 40 : 65);
-  }
-  setTimeout(typeLoop, 800);
-
-  // ── Scroll-triggered animations ──
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        observer.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.12 });
-
-  document.querySelectorAll('.fade-in, .stagger').forEach(el => observer.observe(el));
-
-  // ── Skills typewriter animation (fully parallel — every element types at the same time) ──
-  (function initSkillsTypewriter() {
-    const skillsSection = document.getElementById('skills');
-    const skillsGrid = document.querySelector('.typewriter-skills');
-    if (!skillsGrid || !skillsSection) return;
-
-    // Collect every text target, reserve width to avoid layout jump, then blank it
-    const targets = [];
-    skillsGrid.querySelectorAll('.skill-group-title, .skill-list li').forEach(el => {
-      const text = el.textContent.trim();
-      targets.push({ el, text });
-      // Reserve vertical space with a non-breaking space so the layout stays intact
-      el.textContent = '\u00A0';
-    });
-
-    // Small helper to escape text for innerHTML
-    function esc(s) {
-      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-
-    let started = false;
-    function runTyping() {
-      if (started) return;
-      started = true;
-      targets.forEach(({ el, text }) => {
-        el.innerHTML = '<span class="cursor"></span>';
-        let c = 0;
-        (function tick() {
-          c++;
-          el.innerHTML = esc(text.slice(0, c)) + '<span class="cursor"></span>';
-          if (c < text.length) {
-            setTimeout(tick, 55);
-          } else {
-            // Keep cursor blinking for a moment, then remove
-            setTimeout(() => {
-              el.innerHTML = esc(text);
-            }, 1200);
+      function tick() {
+        const suffix = suffixes[lineIdx];
+        if (!deleting) {
+          charIdx++;
+          el.textContent = prefix + suffix.slice(0, charIdx);
+          el.appendChild(cursor);
+          if (charIdx >= suffix.length) {
+            setTimeout(() => { deleting = true; tick(); }, 2200);
+            return;
           }
-        })();
-      });
-    }
-
-    // Primary trigger: IntersectionObserver with generous rootMargin
-    const skillsObserver = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          skillsObserver.disconnect();
-          runTyping();
-        }
-      });
-    }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
-    skillsObserver.observe(skillsSection);
-
-    // Fallback: also listen to scroll in case the observer misses
-    function scrollFallback() {
-      const rect = skillsSection.getBoundingClientRect();
-      if (rect.top < window.innerHeight * 0.9 && rect.bottom > 0) {
-        window.removeEventListener('scroll', scrollFallback);
-        runTyping();
-      }
-    }
-    window.addEventListener('scroll', scrollFallback, { passive: true });
-    // Check once on load in case skills is already in view
-    setTimeout(scrollFallback, 100);
-  })();
-
-  // ── Hero particle network background ──
-  (function initHeroParticles() {
-    const canvas = document.getElementById('hero-particles');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const DPR = Math.min(window.devicePixelRatio || 1, 2);
-    let w, h, particles;
-    let mouse = { x: -9999, y: -9999 };
-
-    function resize() {
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * DPR;
-      canvas.height = rect.height * DPR;
-      w = canvas.width;
-      h = canvas.height;
-    }
-
-    function init() {
-      resize();
-      const count = Math.min(90, Math.floor((w * h) / (30000 * DPR)));
-      particles = Array.from({ length: count }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.25 * DPR,
-        vy: (Math.random() - 0.5) * 0.25 * DPR,
-      }));
-    }
-
-    function step() {
-      ctx.clearRect(0, 0, w, h);
-
-      // Move + draw points
-      ctx.fillStyle = 'rgba(0, 212, 170, 0.7)';
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0 || p.x > w) p.vx *= -1;
-        if (p.y < 0 || p.y > h) p.vy *= -1;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 1.4 * DPR, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // Lines between close neighbors
-      const maxDist = 130 * DPR;
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const d = Math.hypot(dx, dy);
-          if (d < maxDist) {
-            const a = (1 - d / maxDist) * 0.28;
-            ctx.strokeStyle = `rgba(0, 212, 170, ${a})`;
-            ctx.lineWidth = 0.6 * DPR;
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
-          }
-        }
-        // Line to mouse if close
-        const dx = particles[i].x - mouse.x;
-        const dy = particles[i].y - mouse.y;
-        const d = Math.hypot(dx, dy);
-        if (d < maxDist * 1.3) {
-          const a = (1 - d / (maxDist * 1.3)) * 0.45;
-          ctx.strokeStyle = `rgba(77, 166, 255, ${a})`;
-          ctx.lineWidth = 0.8 * DPR;
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(mouse.x, mouse.y);
-          ctx.stroke();
-        }
-      }
-
-      requestAnimationFrame(step);
-    }
-
-    init();
-    window.addEventListener('resize', init);
-    window.addEventListener('mousemove', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = (e.clientX - rect.left) * DPR;
-      mouse.y = (e.clientY - rect.top) * DPR;
-    });
-    window.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
-    step();
-  })();
-
-  // ── Project card 3D tilt effect ──
-  (function initProjectTilt() {
-    const cards = document.querySelectorAll('.project-card');
-    cards.forEach(card => {
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const px = (e.clientX - rect.left) / rect.width;
-        const py = (e.clientY - rect.top) / rect.height;
-        const rotX = (0.5 - py) * 8;
-        const rotY = (px - 0.5) * 10;
-        card.style.transform =
-          `perspective(1100px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(4px)`;
-      });
-      card.addEventListener('mouseleave', () => {
-        card.style.transform = '';
-      });
-    });
-  })();
-
-  // ── Contact form: AJAX submit to Formspree ──
-  (function initContactForm() {
-    const form = document.querySelector('.contact-form');
-    if (!form) return;
-    const status = form.querySelector('.form-status');
-    const btn = form.querySelector('button[type="submit"]');
-
-    function setStatus(msg, color) {
-      if (!status) return;
-      status.textContent = msg;
-      status.style.display = 'block';
-      status.style.color = color || 'var(--muted)';
-    }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const originalText = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = 'Sending…';
-      setStatus('', 'var(--muted)');
-      try {
-        const res = await fetch(form.action, {
-          method: 'POST',
-          body: new FormData(form),
-          headers: { 'Accept': 'application/json' }
-        });
-        if (res.ok) {
-          form.reset();
-          setStatus('✓ Message sent — thanks, I\'ll get back to you soon.', 'var(--accent)');
+          setTimeout(tick, 45 + Math.random() * 35);
         } else {
-          const data = await res.json().catch(() => ({}));
-          const err = (data.errors && data.errors.map(e => e.message).join(', ')) || 'Something went wrong. Please try again.';
-          setStatus('✗ ' + err, '#ff6b6b');
+          charIdx--;
+          el.textContent = prefix + suffix.slice(0, charIdx);
+          el.appendChild(cursor);
+          if (charIdx <= 0) {
+            deleting = false;
+            lineIdx = (lineIdx + 1) % suffixes.length;
+            setTimeout(tick, 400);
+            return;
+          }
+          setTimeout(tick, 22);
         }
-      } catch (err) {
-        setStatus('✗ Network error. Please try again.', '#ff6b6b');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = originalText;
       }
-    });
-  })();
+      setTimeout(tick, 800);
+    })();
 
-  // Hero stagger visible immediately
-  document.querySelector('.hero-left').classList.add('visible');
-  setTimeout(() => document.querySelector('.hero-right').classList.add('visible'), 200);
+    (function initHeroDragSphere() {
+      return;
+      const host = document.querySelector('.hero-orb-fallback');
+      if (!host) return;
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      host.appendChild(canvas);
 
-  // ── Active nav highlight on scroll ──
-  const sections = document.querySelectorAll('[id]');
-  const navLinks = document.querySelectorAll('.nav-links a');
-  window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(s => {
-      if (window.scrollY >= s.offsetTop - 120) current = s.id;
-    });
-    navLinks.forEach(a => {
-      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--ink)' : '';
-    });
-  });
+      let yaw = 0.35;
+      let pitch = -0.18;
+      let dragging = false;
+      let lx = 0;
+      let ly = 0;
 
-  // (section-inner padding now handled in CSS so mobile breakpoints work)
-</script>
+      const points = [];
+      const lat = 14;
+      const lon = 22;
+      for (let i = 0; i <= lat; i += 1) {
+        const v = (i / lat) * Math.PI - Math.PI / 2;
+        for (let j = 0; j < lon; j += 1) {
+          const u = (j / lon) * Math.PI * 2;
+          points.push({
+            x: Math.cos(v) * Math.cos(u),
+            y: Math.sin(v),
+            z: Math.cos(v) * Math.sin(u),
+          });
+        }
+      }
 
-<!-- ══════════════════════════════════════════════ THREE.JS 3D SCENE ══ -->
-<script type="module">
-  import * as THREE from 'three';
-  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+      function resize() {
+        const w = host.clientWidth;
+        const h = host.clientHeight;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
 
-  const container = document.getElementById('hero-3d');
-  if (container) {
-    const scene = new THREE.Scene();
+      function rotatePoint(p) {
+        const cy = Math.cos(yaw);
+        const sy = Math.sin(yaw);
+        const cx = Math.cos(pitch);
+        const sx = Math.sin(pitch);
+        const x1 = p.x * cy - p.z * sy;
+        const z1 = p.x * sy + p.z * cy;
+        const y2 = p.y * cx - z1 * sx;
+        const z2 = p.y * sx + z1 * cx;
+        return { x: x1, y: y2, z: z2 };
+      }
 
-    const camera = new THREE.PerspectiveCamera(
-      45,
-      container.clientWidth / container.clientHeight,
-      0.1,
-      100
-    );
-    camera.position.set(0, 0, 4);
+      function project(p, r, cx, cy) {
+        const dist = 3.2;
+        const s = dist / (dist - p.z);
+        return { x: cx + p.x * r * s, y: cy + p.y * r * s, z: p.z, s };
+      }
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    container.appendChild(renderer.domElement);
+      function draw() {
+        const w = host.clientWidth;
+        const h = host.clientHeight;
+        const cx = w * 0.5;
+        const cy = h * 0.53;
+        const r = Math.min(w, h) * 0.34;
 
-    // Lights (for the solid inner sphere)
-    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
-    const keyLight = new THREE.PointLight(0x00d4aa, 1.4, 20);
-    keyLight.position.set(3, 3, 4);
-    scene.add(keyLight);
-    const rimLight = new THREE.PointLight(0x4da6ff, 0.9, 20);
-    rimLight.position.set(-3, -2, 3);
-    scene.add(rimLight);
+        ctx.clearRect(0, 0, w, h);
 
-    // ── Wireframe icosahedron (the iconic "data sphere") ──
-    const icoGeo = new THREE.IcosahedronGeometry(1.2, 2);
-    const wireMat = new THREE.MeshBasicMaterial({
-      color: 0x00d4aa,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.75,
-    });
-    const wire = new THREE.Mesh(icoGeo, wireMat);
-    scene.add(wire);
+        const grd = ctx.createRadialGradient(cx - r * 0.25, cy - r * 0.35, r * 0.2, cx, cy, r * 1.2);
+        grd.addColorStop(0, 'rgba(122, 236, 217, 0.22)');
+        grd.addColorStop(0.45, 'rgba(21, 72, 86, 0.42)');
+        grd.addColorStop(1, 'rgba(8, 24, 39, 0.78)');
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fill();
 
-    // Inner solid core (subtle)
-    const coreGeo = new THREE.IcosahedronGeometry(0.75, 1);
-    const coreMat = new THREE.MeshStandardMaterial({
-      color: 0x0d1117,
-      metalness: 0.6,
-      roughness: 0.3,
-      emissive: 0x003322,
-      emissiveIntensity: 0.4,
-    });
-    const core = new THREE.Mesh(coreGeo, coreMat);
-    scene.add(core);
+        ctx.strokeStyle = 'rgba(103, 221, 205, 0.35)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
 
-    // Particle cloud around the sphere
-    const pCount = 180;
-    const positions = new Float32Array(pCount * 3);
-    for (let i = 0; i < pCount; i++) {
-      const r = 1.8 + Math.random() * 1.2;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-      positions[i * 3 + 2] = r * Math.cos(phi);
-    }
-    const pGeo = new THREE.BufferGeometry();
-    pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const pMat = new THREE.PointsMaterial({
-      color: 0x4da6ff,
-      size: 0.035,
-      transparent: true,
-      opacity: 0.85,
-    });
-    const points = new THREE.Points(pGeo, pMat);
-    scene.add(points);
+        const rotated = points.map((p) => rotatePoint(p));
+        const projected = rotated.map((p) => project(p, r, cx, cy));
 
-    // OrbitControls — drag to rotate
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableZoom = false;
-    controls.enablePan = false;
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.9;
-    controls.rotateSpeed = 0.8;
+        for (let i = 0; i <= lat; i += 1) {
+          for (let j = 0; j < lon; j += 1) {
+            const idx = i * lon + j;
+            const right = i * lon + ((j + 1) % lon);
+            const down = i < lat ? (i + 1) * lon + j : -1;
 
-    // Animate
-    const clock = new THREE.Clock();
-    function animate() {
-      requestAnimationFrame(animate);
-      const t = clock.getElapsedTime();
-      wire.rotation.x = t * 0.15;
-      points.rotation.y = t * 0.05;
-      points.rotation.x = t * 0.03;
-      core.rotation.y = -t * 0.2;
-      controls.update();
-      renderer.render(scene, camera);
-    }
-    animate();
+            const a = projected[idx];
+            if (a.z < -0.08) continue;
 
-    // Resize
-    function onResize() {
-      if (!container.clientWidth || !container.clientHeight) return;
-      camera.aspect = container.clientWidth / container.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
-    }
-    window.addEventListener('resize', onResize);
-  }
-</script>
+            if (right >= 0) {
+              const b = projected[right];
+              if (b.z >= -0.08) {
+                ctx.strokeStyle = `rgba(98, 219, 201, ${0.12 + ((a.z + b.z + 2) / 4) * 0.35})`;
+                ctx.lineWidth = 0.8;
+                ctx.beginPath();
+                ctx.moveTo(a.x, a.y);
+                ctx.lineTo(b.x, b.y);
+                ctx.stroke();
+              }
+            }
+            if (down >= 0) {
+              const c = projected[down];
+              if (c.z >= -0.08) {
+                ctx.strokeStyle = `rgba(88, 196, 182, ${0.10 + ((a.z + c.z + 2) / 4) * 0.3})`;
+                ctx.lineWidth = 0.7;
+                ctx.beginPath();
+                ctx.moveTo(a.x, a.y);
+                ctx.lineTo(c.x, c.y);
+                ctx.stroke();
+              }
+            }
+          }
+        }
 
+        projected
+          .filter((p) => p.z >= -0.08)
+          .sort((a, b) => a.z - b.z)
+          .forEach((p) => {
+            const alpha = 0.25 + ((p.z + 1) / 2) * 0.65;
+            ctx.fillStyle = `rgba(125, 238, 219, ${alpha})`;
+            ctx.fillRect(p.x - 0.9, p.y - 0.9, 1.8, 1.8);
+          });
+
+        requestAnimationFrame(draw);
+      }
+
+      host.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        lx = e.clientX;
+        ly = e.clientY;
+        host.setPointerCapture(e.pointerId);
+      });
+      host.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const dx = e.clientX - lx;
+        const dy = e.clientY - ly;
+        lx = e.clientX;
+        ly = e.clientY;
+        yaw += dx * 0.0085;
+        pitch += dy * 0.0072;
+        if (pitch > 1.25) pitch = 1.25;
+        if (pitch < -1.25) pitch = -1.25;
+      });
+      host.addEventListener('pointerup', () => { dragging = false; });
+      host.addEventListener('pointercancel', () => { dragging = false; });
+      host.addEventListener('lostpointercapture', () => { dragging = false; });
+
+      resize();
+      draw();
+      window.addEventListener('resize', resize);
+    })();
+
+    /* Starfield background now rendered by Three.js module script below */
+
+    /* Skill orbs now rendered by Three.js module script below */
+
+    (function initProjectScrollAnim() {
+      const groups = [
+        { section: '#about', selector: '.about-exp-card', step: 340 },
+        { section: '#projects', selector: '.project-card', step: 420 },
+      ];
+
+      groups.forEach(({ section, selector, step }) => {
+        const cards = document.querySelectorAll(selector);
+        if (!cards.length) return;
+        let animating = false;
+        const host = document.querySelector(section);
+        if (!host) return;
+
+        const reveal = () => {
+          if (animating) return;
+          animating = true;
+          cards.forEach((card, i) => {
+            setTimeout(() => {
+              card.classList.remove('proj-hidden');
+              card.classList.add('proj-visible');
+            }, i * step);
+          });
+        };
+        const hide = () => {
+          animating = false;
+          cards.forEach(card => {
+            card.classList.remove('proj-visible');
+            card.classList.add('proj-hidden');
+          });
+        };
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              reveal();
+            } else {
+              const rect = entry.boundingClientRect;
+              if (rect.top > 0) hide();
+            }
+          });
+        }, {
+          threshold: 0.45,
+          rootMargin: '0px 0px -18% 0px'
+        });
+        observer.observe(host);
+      });
+    })();
+
+    (function initTiltEffect() {
+      if (typeof VanillaTilt === 'undefined') return;
+      VanillaTilt.init(document.querySelectorAll('.project-card, .about-exp-card'), {
+        max: 8,
+        speed: 400,
+        scale: 1.03,
+        glare: true,
+        'max-glare': 0.15,
+        gyroscope: false
+      });
+    })();
+
+    (function initTransformerViz() {
+      const stream = document.getElementById('tf-stream');
+      const netCanvas = document.getElementById('tf-net');
+      if (!stream || !netCanvas) return;
+      const ctx = netCanvas.getContext('2d');
+      if (!ctx) return;
+
+      let W = 0, H = 0, dpr = 1;
+      // Decoder autoregressive generation: BOS + sentence + EOS
+      const TOKENS = ['<BOS>', "Let's", 'get', 'in', 'touch', '<EOS>'];
+      const N = TOKENS.length;
+
+      // Causal (lower-triangular) attention weights [step/query][key]
+      // Each row sums to 1; zeros beyond the current position enforce causality
+      const ATTN = [
+        [1.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+        [0.35, 0.65, 0.00, 0.00, 0.00, 0.00],
+        [0.16, 0.42, 0.42, 0.00, 0.00, 0.00],
+        [0.10, 0.18, 0.44, 0.28, 0.00, 0.00],
+        [0.07, 0.10, 0.30, 0.28, 0.25, 0.00],
+        [0.05, 0.08, 0.13, 0.20, 0.38, 0.16],
+      ];
+
+      // Per-token timing: each step = ATTN + FFN + OUT
+      const ATTN_DUR = 700, FFN_DUR = 580, OUT_DUR = 440;
+
+      let step = 1, phase = 'ATTN', phaseStart = 0, lastTime = 0;
+      let revealedCount = 1, pausing = false; // <BOS> pre-injected, not generated
+      let inPos = [], h1Pos = [], h2Pos = [], outPos = [];
+      const parts = [];
+
+      function layout() {
+        const r = netCanvas.getBoundingClientRect();
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = Math.floor(r.width); H = Math.floor(r.height);
+        netCanvas.width = Math.max(1, W * dpr);
+        netCanvas.height = Math.max(1, H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const pad = 20, rw = W - pad * 2;
+        inPos  = TOKENS.map((_, i) => ({ x: pad + (i + 0.5) * rw / N, y: 44 }));
+        h1Pos  = Array.from({length: 8}, (_, i) => ({ x: pad + (i + 0.5) * rw / 8, y: H * 0.43, act: 0 }));
+        h2Pos  = Array.from({length: 8}, (_, i) => ({ x: pad + (i + 0.5) * rw / 8, y: H * 0.63, act: 0 }));
+        outPos = TOKENS.map((_, i) => ({ x: pad + (i + 0.5) * rw / N, y: H - 44 }));
+      }
+
+      function mkP(sx,sy,tx,ty,r,g,b,a,delay,sz,curved,arcH) {
+        parts.push({sx,sy,tx,ty,r,g,b,maxA:a,delay,size:sz,
+          curved:!!curved,arcH:arcH||0,t:0,born:false,startT:performance.now()});
+      }
+
+      function spawnAttn(s) {
+        const src = inPos[s];
+        for (let k = 0; k <= s; k++) {
+          const w = ATTN[s][k]; if (w < 0.04) continue;
+          const cnt = Math.max(1, Math.round(w * 10));
+          for (let p = 0; p < cnt; p++)
+            mkP(src.x, src.y-16, inPos[k].x, inPos[k].y-16,
+              88,192,255, 0.45+w*0.55, p*55, 2+w*2.5, true, -(26+w*62));
+          for (let j = 0; j < h1Pos.length; j++) {
+            if (Math.random() > 0.45) continue;
+            mkP(src.x, src.y+16, h1Pos[j].x, h1Pos[j].y, 255,158,68, 0.5, 200+j*28, 2, false, 0);
+          }
+        }
+      }
+
+      function spawnFFN() {
+        for (let i = 0; i < h1Pos.length; i++)
+          for (let j = 0; j < h2Pos.length; j++) {
+            if (Math.random() > 0.30) continue;
+            mkP(h1Pos[i].x,h1Pos[i].y, h2Pos[j].x,h2Pos[j].y, 255,210,68, 0.65, i*35+j*12, 2.5, false, 0);
+          }
+      }
+
+      function spawnOut(idx) {
+        for (let j = 0; j < h2Pos.length; j++)
+          mkP(h2Pos[j].x,h2Pos[j].y, outPos[idx].x,outPos[idx].y-16, 148,232,108, 0.82, j*18, 2.5, false, 0);
+      }
+
+      // rgb = [r,g,b] array or null; glowI = glow intensity 0..1+
+      function drawNode(x, y, rad, label, alpha, rgb, glowI) {
+        if (alpha <= 0) return;
+        ctx.save(); ctx.globalAlpha = alpha;
+        if (rgb && glowI > 0) {
+          const g = ctx.createRadialGradient(x,y,0, x,y,rad*3.6);
+          g.addColorStop(0,   `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${Math.min(glowI*0.48,1).toFixed(3)})`);
+          g.addColorStop(0.4, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${Math.min(glowI*0.18,1).toFixed(3)})`);
+          g.addColorStop(1,   `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`);
+          ctx.fillStyle = g;
+          ctx.beginPath(); ctx.arc(x,y,rad*3.6,0,Math.PI*2); ctx.fill();
+        }
+        ctx.beginPath(); ctx.arc(x,y,rad,0,Math.PI*2);
+        ctx.fillStyle = rgb ? 'rgba(6,14,28,0.96)' : 'rgba(4,11,20,0.88)';
+        ctx.fill();
+        ctx.strokeStyle = rgb
+          ? `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${(0.52+Math.min(glowI||0,1)*0.44).toFixed(3)})`
+          : 'rgba(95,130,180,0.38)';
+        ctx.lineWidth = rgb ? 2.2 : 1.4; ctx.stroke();
+        if (label) {
+          ctx.fillStyle = alpha > 0.5 ? '#dce8f5' : 'rgba(155,185,218,0.5)';
+          ctx.font = (label.length > 4 ? '500 8px' : '500 10px') + ' DM Mono';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(label, x, y);
+        }
+        ctx.restore();
+      }
+
+      function draw(now) {
+        requestAnimationFrame(draw);
+        if (W === 0) return;
+        const dt = Math.min(now - lastTime, 50); lastTime = now;
+        const elapsed = now - phaseStart;
+
+        ctx.clearRect(0,0,W,H);
+        ctx.fillStyle = '#050a12'; ctx.fillRect(0,0,W,H);
+
+        // Phase machine — one token per cycle
+        if (!pausing) {
+          if (phase === 'ATTN') {
+            if (elapsed >= ATTN_DUR) {
+              phase = 'FFN'; phaseStart = now;
+              for (const n of h1Pos) n.act = 0;
+              for (const n of h2Pos) n.act = 0;
+              spawnFFN();
+            }
+          } else if (phase === 'FFN') {
+            const p = Math.min(elapsed / FFN_DUR, 1);
+            for (let i = 0; i < h1Pos.length; i++) h1Pos[i].act = Math.max(0, Math.min(1, p*(h1Pos.length+2)-i));
+            for (let i = 0; i < h2Pos.length; i++) h2Pos[i].act = Math.max(0, Math.min(1, p*(h2Pos.length+4)-i-1.5));
+            if (elapsed >= FFN_DUR) { phase = 'OUT'; phaseStart = now; spawnOut(step); }
+          } else if (phase === 'OUT') {
+            if (elapsed >= OUT_DUR) {
+              revealedCount = step + 1;
+              pushToken(TOKENS[step]);
+              step++;
+              if (step >= N) {
+                pausing = true;
+                setTimeout(() => {
+                  pausing = false; step = 1; revealedCount = 1;
+                  for (const n of h1Pos) n.act = 0;
+                  for (const n of h2Pos) n.act = 0;
+                  parts.length = 0;
+                  pushBOS();
+                  phase = 'ATTN'; phaseStart = performance.now();
+                  spawnAttn(1);
+                }, 5200);
+              } else {
+                phase = 'ATTN'; phaseStart = now;
+                parts.length = 0;
+                spawnAttn(step);
+              }
+            }
+          }
+        }
+
+        // Background weight connections
+        ctx.globalAlpha = 0.10; ctx.lineWidth = 0.5; ctx.strokeStyle = '#8aabcc';
+        for (const a of inPos)  for (const b of h1Pos)  { ctx.beginPath(); ctx.moveTo(a.x,a.y+16); ctx.lineTo(b.x,b.y); ctx.stroke(); }
+        for (const a of h1Pos) for (const b of h2Pos)  { ctx.beginPath(); ctx.moveTo(a.x,a.y);    ctx.lineTo(b.x,b.y); ctx.stroke(); }
+        for (const a of h2Pos) for (const b of outPos)  { ctx.beginPath(); ctx.moveTo(a.x,a.y);    ctx.lineTo(b.x,b.y-16); ctx.stroke(); }
+        ctx.globalAlpha = 1;
+
+        // Causal attention arcs — arch ABOVE top row, only attending to past tokens
+        if (phase === 'ATTN' && !pausing) {
+          const fadeIn = Math.min(elapsed / 200, 1);
+          for (let k = 0; k <= step; k++) {
+            const w = ATTN[step][k]; if (w < 0.04) continue;
+            const sx = inPos[step].x, sy = inPos[step].y - 16;
+            const tx = inPos[k].x,   ty = inPos[k].y - 16;
+            ctx.beginPath(); ctx.moveTo(sx, sy);
+            ctx.quadraticCurveTo((sx+tx)/2, sy-22-w*58, tx, ty);
+            ctx.strokeStyle = `rgba(85,190,255,${(w*fadeIn*0.88).toFixed(3)})`;
+            ctx.lineWidth = 0.5 + w * 4.5; ctx.stroke();
+          }
+        }
+
+        // FFN hidden nodes — intense bloom on activation
+        for (const n of h1Pos) drawNode(n.x,n.y,7,'', 0.2+n.act*0.78, n.act>0.05?[255,162,60]:null, n.act*0.55);
+        for (const n of h2Pos) drawNode(n.x,n.y,7,'', 0.2+n.act*0.78, n.act>0.05?[255,228,60]:null, n.act*0.55);
+
+        // KV-cache nodes (TOP) — context accumulates step by step
+        for (let i = 0; i < N; i++) {
+          const p = inPos[i];
+          const isCurr = !pausing && i === step;
+          const isCtx  =  pausing || i < step;
+          if      (isCurr) drawNode(p.x,p.y,15,TOKENS[i],1.0, [85,190,255], 0.55);
+          else if (isCtx)  drawNode(p.x,p.y,15,TOKENS[i],0.82,[52,115,200], 0.22);
+          else             drawNode(p.x,p.y,15,TOKENS[i],0.14, null, 0);
+        }
+
+        // Output tokens (BOTTOM) — autoregressive left-to-right reveal
+        for (let i = 0; i < N; i++) {
+          const p = outPos[i];
+          if (i < revealedCount) {
+            drawNode(p.x,p.y,15,TOKENS[i],1.0, [145,232,105], 0.48);
+          } else if (!pausing && i === step && phase === 'OUT') {
+            const t = Math.min(elapsed / OUT_DUR, 1);
+            drawNode(p.x,p.y,15,TOKENS[i], t*0.97, [145,232,105], t*0.5);
+          } else {
+            drawNode(p.x,p.y,15,TOKENS[i],0.11, null, 0);
+          }
+        }
+
+        // Particles
+        const pNow = performance.now();
+        for (let i = parts.length - 1; i >= 0; i--) {
+          const p = parts[i];
+          if (!p.born) { if (pNow < p.startT+p.delay) continue; p.born=true; p.t=0; }
+          p.t += dt / 510;
+          if (p.t >= 1) { parts.splice(i,1); continue; }
+          const e = p.t < 0.5 ? 2*p.t*p.t : -1+(4-2*p.t)*p.t;
+          let x, y;
+          if (p.curved) {
+            const mx=(p.sx+p.tx)/2, my=(p.sy+p.ty)/2+p.arcH;
+            x=(1-e)*(1-e)*p.sx+2*(1-e)*e*mx+e*e*p.tx;
+            y=(1-e)*(1-e)*p.sy+2*(1-e)*e*my+e*e*p.ty;
+          } else {
+            x=p.sx+(p.tx-p.sx)*e; y=p.sy+(p.ty-p.sy)*e;
+          }
+          ctx.beginPath(); ctx.arc(x,y,p.size,0,Math.PI*2);
+          ctx.fillStyle=`rgba(${p.r},${p.g},${p.b},${(Math.sin(p.t*Math.PI)*p.maxA).toFixed(3)})`;
+          ctx.fill();
+        }
+
+        // Layer labels
+        ctx.fillStyle='rgba(142,168,205,0.46)'; ctx.font='500 9px DM Sans';
+        ctx.textAlign='right'; ctx.textBaseline='middle';
+        ctx.fillText('KV Cache', W-4, inPos[0].y);
+        ctx.fillText('FFN₁',    W-4, h1Pos[0].y);
+        ctx.fillText('FFN₂',    W-4, h2Pos[0].y);
+        ctx.fillText('Output',  W-4, outPos[0].y);
+
+        // Phase indicator
+        const lbl = pausing         ? 'Generation complete'
+                  : phase==='ATTN' ? `Causal Attn  ·  t = ${step+1} / ${N}`
+                  : phase==='FFN'  ? 'Feed-Forward  ·  ReLU'
+                  :                  `Generating  "${TOKENS[step]}"`;
+        ctx.fillStyle='rgba(138,196,255,0.9)'; ctx.font='500 11px DM Sans';
+        ctx.textAlign='left'; ctx.textBaseline='top';
+        ctx.fillText(lbl, 8, 6);
+      }
+
+      function pushBOS() {
+        stream.innerHTML = '';
+        const span = document.createElement('span');
+        span.className = 'tf-token tf-token--bos';
+        span.textContent = '<BOS>';
+        stream.appendChild(span);
+      }
+
+      function pushToken(tok) {
+        const span = document.createElement('span');
+        span.className = 'tf-token';
+        span.textContent = tok;
+        stream.appendChild(span);
+        stream.scrollTop = stream.scrollHeight;
+        if (tok === '<EOS>') setTimeout(() => { stream.innerHTML = ''; }, 4500);
+      }
+
+      layout();
+      pushBOS();
+      phaseStart = performance.now();
+      spawnAttn(1);
+      requestAnimationFrame(draw);
+      window.addEventListener('resize', layout);
+    })();
+
+    (function initContactForm() {
+      const form = document.querySelector('.contact-form');
+      if (!form) return;
+      const status = form.querySelector('.form-status');
+      const btn = form.querySelector('button[type="submit"]');
+      if (!btn) return;
+
+      function setStatus(msg, color) {
+        if (!status) return;
+        status.textContent = msg;
+        status.style.display = msg ? 'block' : 'none';
+        status.style.color = color || 'var(--muted)';
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+        setStatus('', 'var(--muted)');
+        try {
+          const res = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { Accept: 'application/json' },
+          });
+          if (res.ok) {
+            form.reset();
+            setStatus('Message sent. Thanks, I will get back to you soon.', 'var(--accent)');
+          } else {
+            const data = await res.json().catch(() => ({}));
+            const err =
+              (data.errors && data.errors.map((x) => x.message).join(', ')) ||
+              'Something went wrong. Please try again.';
+            setStatus(`Error: ${err}`, '#ff6b6b');
+          }
+        } catch (err) {
+          setStatus('Network error. Please try again.', '#ff6b6b');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = originalText;
+        }
+      });
+    })();
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+    (function initStarfield() {
+      const container = document.getElementById('fx-bg');
+      if (!container) return;
+      const hero = container.parentElement;
+      let w = hero.offsetWidth, h = hero.offsetHeight;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
+      camera.position.z = 1;
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer.setSize(w, h);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
+
+      const starCount = 18000;
+      const geo = new THREE.BufferGeometry();
+      const pos = new Float32Array(starCount * 3);
+      const col = new Float32Array(starCount * 3);
+      const sizes = new Float32Array(starCount);
+      const twinklePhase = new Float32Array(starCount);
+      const twinkleSpeed = new Float32Array(starCount);
+
+      for (let i = 0; i < starCount; i++) {
+        const i3 = i * 3;
+        const r = 300 + Math.random() * 200;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        pos[i3]     = r * Math.sin(phi) * Math.cos(theta);
+        pos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        pos[i3 + 2] = r * Math.cos(phi);
+
+        const temp = Math.random();
+        if (temp < 0.15) {
+          col[i3] = 1.0; col[i3+1] = 0.85 + Math.random()*0.1; col[i3+2] = 0.7 + Math.random()*0.15;
+        } else if (temp < 0.35) {
+          col[i3] = 0.9 + Math.random()*0.1; col[i3+1] = 0.9 + Math.random()*0.1; col[i3+2] = 1.0;
+        } else {
+          col[i3] = 0.7 + Math.random()*0.3; col[i3+1] = 0.8 + Math.random()*0.2; col[i3+2] = 1.0;
+        }
+        const base = 0.18 + Math.pow(Math.random(), 2.7) * 2.1;
+        const rareBoost = Math.random() < 0.025 ? 0.8 + Math.random() * 1.6 : 0;
+        sizes[i] = base + rareBoost;
+        twinklePhase[i] = Math.random() * Math.PI * 2.0;
+        twinkleSpeed[i] = 0.015 + Math.random() * 0.05;
+      }
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+      geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+      geo.setAttribute('twinklePhase', new THREE.BufferAttribute(twinklePhase, 1));
+      geo.setAttribute('twinkleSpeed', new THREE.BufferAttribute(twinkleSpeed, 1));
+
+      const starMat = new THREE.ShaderMaterial({
+        uniforms: { uTime: { value: 0 } },
+        vertexColors: true,
+        transparent: true,
+        depthWrite: false,
+        vertexShader: `
+          attribute float size;
+          attribute float twinklePhase;
+          attribute float twinkleSpeed;
+          varying vec3 vColor;
+          varying float vSize;
+          uniform float uTime;
+          void main() {
+            vColor = color;
+            vSize = size;
+            vec4 mv = modelViewMatrix * vec4(position, 1.0);
+            float twinkle = 0.84 + 0.16 * sin(uTime * twinkleSpeed + twinklePhase);
+            gl_PointSize = size * twinkle * (300.0 / -mv.z);
+            gl_Position = projectionMatrix * mv;
+          }
+        `,
+        fragmentShader: `
+          varying vec3 vColor;
+          varying float vSize;
+          void main() {
+            float d = length(gl_PointCoord - 0.5) * 2.0;
+            float alpha = 1.0 - smoothstep(0.0, 1.0, d);
+            alpha *= 0.85;
+            if (vSize > 1.0) {
+              float glow = exp(-d * d * 1.5) * 0.4;
+              alpha += glow;
+            }
+            gl_FragColor = vec4(vColor, alpha);
+          }
+        `
+      });
+      const stars = new THREE.Points(geo, starMat);
+      scene.add(stars);
+
+      const galaxyGeo = new THREE.SphereGeometry(350, 64, 64);
+      const galaxyMat = new THREE.ShaderMaterial({
+        side: THREE.BackSide,
+        transparent: true,
+        depthWrite: false,
+        uniforms: { uTime: { value: 0 } },
+        vertexShader: `
+          varying vec2 vUv;
+          varying vec3 vPos;
+          void main() {
+            vUv = uv;
+            vPos = position;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          varying vec2 vUv;
+          varying vec3 vPos;
+          uniform float uTime;
+          float hash(vec2 p) {
+            return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+          }
+          float noise(vec2 p) {
+            vec2 i = floor(p);
+            vec2 f = fract(p);
+            f = f * f * (3.0 - 2.0 * f);
+            return mix(
+              mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+              mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x),
+              f.y
+            );
+          }
+          void main() {
+            float dist = abs(vUv.x - 0.48);
+            float band = exp(-pow(dist * 7.0, 2.0));
+
+            float n = noise(vUv * 12.0) * 0.5 + noise(vUv * 24.0) * 0.25 + noise(vUv * 48.0) * 0.125;
+            band *= (0.6 + n * 0.8);
+
+            vec3 deepBlue = vec3(0.03, 0.06, 0.25);
+            vec3 brightBlue = vec3(0.15, 0.25, 0.65);
+            vec3 white = vec3(0.7, 0.75, 0.9);
+
+            float coreDist = distance(vUv, vec2(0.48, 0.55));
+            float core = exp(-pow(coreDist * 8.0, 2.0));
+
+            vec3 color = mix(deepBlue, brightBlue, band);
+            color = mix(color, white, core * 0.7);
+            color += vec3(0.1, 0.15, 0.4) * noise(vUv * 6.0 + uTime * 0.01) * band * 0.5;
+
+            float dustDark = noise(vUv * 15.0 + 3.0);
+            color *= 1.0 - dustDark * 0.25 * band;
+
+            float alpha = band * 0.65 + core * 0.4;
+
+            gl_FragColor = vec4(color, alpha);
+          }
+        `
+      });
+      const galaxy = new THREE.Mesh(galaxyGeo, galaxyMat);
+      galaxy.rotation.z = 0.3;
+      scene.add(galaxy);
+
+      const composer = new EffectComposer(renderer);
+      composer.addPass(new RenderPass(scene, camera));
+      const bloom = new UnrealBloomPass(new THREE.Vector2(w, h), 1.5, 0.4, 0.85);
+      bloom.threshold = 0.15;
+      bloom.strength = 1.0;
+      bloom.radius = 0.6;
+      composer.addPass(bloom);
+
+      const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+      const meteors = [];
+      let nextMeteorAt = 0;
+      window.addEventListener('pointermove', e => {
+        mouse.tx = ((e.clientX / w) - 0.5) * 0.08;
+        mouse.ty = ((e.clientY / h) - 0.5) * 0.05;
+      });
+
+      function spawnMeteor(now) {
+        const segments = 48;
+        // Realistic meteor angle: diagonal, upper area to lower, slight variation
+        const baseAngle = -(Math.PI * 0.18 + Math.random() * Math.PI * 0.14);
+        const vx = Math.cos(baseAngle);
+        const vy = Math.sin(baseAngle);
+        const speed = 0.7 + Math.random() * 0.6;
+        const trailLen = 18 + Math.random() * 22;
+        const z = -80 - Math.random() * 80;
+
+        const posArr = new Float32Array((segments + 1) * 3);
+        const colArr = new Float32Array((segments + 1) * 3);
+
+        // Start position: upper half, random x
+        const sx = (Math.random() - 0.5) * 280;
+        const sy = 30 + Math.random() * 60;
+
+        for (let i = 0; i <= segments; i++) {
+          const t = i / segments; // 0 = tail, 1 = head
+          posArr[i*3]   = sx - vx * trailLen * (1 - t);
+          posArr[i*3+1] = sy - vy * trailLen * (1 - t);
+          posArr[i*3+2] = z;
+          const b = Math.pow(t, 1.8);
+          colArr[i*3]   = b * 0.88;
+          colArr[i*3+1] = b * 0.92;
+          colArr[i*3+2] = b * 1.0;
+        }
+
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+        geo.setAttribute('color',    new THREE.BufferAttribute(colArr, 3));
+
+        const mat = new THREE.LineBasicMaterial({
+          vertexColors: true,
+          transparent: true,
+          opacity: 0.9,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        });
+
+        const line = new THREE.Line(geo, mat);
+        scene.add(line);
+
+        meteors.push({ line, geo, mat, vx: vx * speed, vy: vy * speed, born: now, life: 700 + Math.random() * 500 });
+      }
+
+      function onResize() {
+        w = hero.offsetWidth; h = hero.offsetHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+        composer.setSize(w, h);
+      }
+      window.addEventListener('resize', onResize);
+
+      function animate(t) {
+        requestAnimationFrame(animate);
+        const time = t * 0.001;
+        starMat.uniforms.uTime.value = time;
+        galaxyMat.uniforms.uTime.value = time;
+
+        stars.rotation.y += 0.00015;
+        stars.rotation.x += 0.00005;
+
+        mouse.x += (mouse.tx - mouse.x) * 0.03;
+        mouse.y += (mouse.ty - mouse.y) * 0.03;
+        camera.rotation.y = mouse.x;
+        camera.rotation.x = mouse.y;
+
+        const nowMs = t || performance.now();
+        if (nowMs > nextMeteorAt) {
+          if (Math.random() < 0.62) spawnMeteor(nowMs);
+          nextMeteorAt = nowMs + 5200 + Math.random() * 6800;
+        }
+
+        for (let i = meteors.length - 1; i >= 0; i -= 1) {
+          const m = meteors[i];
+          const age = nowMs - m.born;
+          if (age > m.life) {
+            scene.remove(m.line);
+            m.geo.dispose();
+            m.mat.dispose();
+            meteors.splice(i, 1);
+            continue;
+          }
+          const k = age / m.life;
+          const opacity = k < 0.08 ? k / 0.08 : Math.pow(1 - k, 1.6);
+          m.mat.opacity = opacity * 0.9;
+          m.line.position.x += m.vx;
+          m.line.position.y += m.vy;
+        }
+
+        composer.render();
+      }
+      nextMeteorAt = performance.now() + 2200 + Math.random() * 2600;
+      animate(0);
+    })();
+
+    (function initHeroEarth() {
+      const host = document.getElementById('hero-earth');
+      if (!host) return;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(42, host.clientWidth / host.clientHeight, 0.1, 100);
+      camera.position.set(0, 0.12, 3.8);
+
+      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(host.clientWidth, host.clientHeight);
+      host.appendChild(renderer.domElement);
+
+      const earthGroup = new THREE.Group();
+      scene.add(earthGroup);
+
+      scene.add(new THREE.AmbientLight(0x6e88b8, 0.08));
+      const sun = new THREE.DirectionalLight(0xffffff, 1.0);
+      sun.position.set(1.2, 0.4, 0.0);
+      scene.add(sun);
+      const rim = new THREE.DirectionalLight(0x6ea9ff, 0.16);
+      rim.position.set(-3.6, -1.2, -2.8);
+      scene.add(rim);
+
+      const loader = new THREE.TextureLoader();
+      const texBase = 'https://threejs.org/examples/textures/planets/';
+      const earthMap = loader.load(texBase + 'earth_atmos_2048.jpg');
+      const earthBump = loader.load(texBase + 'earth_bump_2048.jpg');
+      const earthSpec = loader.load(texBase + 'earth_specular_2048.jpg');
+      const earthCloud = loader.load(texBase + 'earth_clouds_1024.png');
+      const earthNight = loader.load(texBase + 'earth_lights_2048.png');
+
+      const earthGeo = new THREE.SphereGeometry(1.08, 96, 96);
+      const earthMat = new THREE.MeshPhongMaterial({
+        map: earthMap,
+        bumpMap: earthBump,
+        bumpScale: 0.035,
+        specularMap: earthSpec,
+        specular: new THREE.Color(0x355f84),
+        shininess: 16,
+      });
+      const earth = new THREE.Mesh(earthGeo, earthMat);
+      earthGroup.add(earth);
+
+      const nightGeo = new THREE.SphereGeometry(1.082, 96, 96);
+      const nightMat = new THREE.ShaderMaterial({
+        uniforms: {
+          uNightMap: { value: earthNight },
+          uLightDir: { value: sun.position.clone().normalize() },
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          varying vec3 vWorldNormal;
+          void main() {
+            vUv = uv;
+            vWorldNormal = normalize(mat3(modelMatrix) * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D uNightMap;
+          uniform vec3 uLightDir;
+          varying vec2 vUv;
+          varying vec3 vWorldNormal;
+          void main() {
+            float ndl = dot(normalize(vWorldNormal), normalize(uLightDir));
+            float night = smoothstep(0.42, -0.06, ndl);
+            vec3 c = texture2D(uNightMap, vUv).rgb;
+            c = pow(c, vec3(0.9));
+            c = vec3(c.r * 1.08, c.g * 1.02, c.b * 0.78);
+            c *= 2.0;
+            gl_FragColor = vec4(c, night * 1.18);
+          }
+        `,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      });
+      const nightLights = new THREE.Mesh(nightGeo, nightMat);
+      earthGroup.add(nightLights);
+
+      const cloudGeo = new THREE.SphereGeometry(1.103, 72, 72);
+      const cloudMat = new THREE.MeshPhongMaterial({
+        map: earthCloud,
+        transparent: true,
+        opacity: 0.36,
+        depthWrite: false,
+      });
+      const clouds = new THREE.Mesh(cloudGeo, cloudMat);
+      earthGroup.add(clouds);
+
+      earth.rotation.y = 0.72;
+      clouds.rotation.y = 0.72;
+      nightLights.rotation.y = 0.72;
+
+      const atmoGeo = new THREE.SphereGeometry(1.16, 72, 72);
+      const atmoMat = new THREE.ShaderMaterial({
+        uniforms: {
+          c: { value: 0.42 },
+          p: { value: 2.6 },
+          glowColor: { value: new THREE.Color(0x5b8fcf) },
+          viewVector: { value: camera.position },
+        },
+        vertexShader: `
+          uniform vec3 viewVector;
+          uniform float c;
+          uniform float p;
+          varying float intensity;
+          void main() {
+            vec3 vNormal = normalize(normalMatrix * normal);
+            vec3 vNormel = normalize(normalMatrix * viewVector);
+            intensity = pow(c - dot(vNormal, vNormel), p);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 glowColor;
+          varying float intensity;
+          void main() {
+            vec3 glow = glowColor * intensity;
+            gl_FragColor = vec4(glow, intensity * 0.38);
+          }
+        `,
+        side: THREE.BackSide,
+        blending: THREE.AdditiveBlending,
+        transparent: true,
+        depthWrite: false,
+      });
+      const atmosphere = new THREE.Mesh(atmoGeo, atmoMat);
+      earthGroup.add(atmosphere);
+
+      let drag = false;
+      let px = 0;
+      let py = 0;
+      let vx = 0;
+      let vy = 0;
+
+      host.addEventListener('pointerdown', (e) => {
+        drag = true;
+        px = e.clientX;
+        py = e.clientY;
+        host.setPointerCapture(e.pointerId);
+      });
+      host.addEventListener('pointermove', (e) => {
+        if (!drag) return;
+        const dx = e.clientX - px;
+        const dy = e.clientY - py;
+        px = e.clientX;
+        py = e.clientY;
+        vx += dx * 0.00095;
+        vy += dy * 0.00075;
+      });
+      host.addEventListener('pointerup', () => { drag = false; });
+      host.addEventListener('pointercancel', () => { drag = false; });
+      host.addEventListener('lostpointercapture', () => { drag = false; });
+
+      function resize() {
+        const w = host.clientWidth;
+        const h = host.clientHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        if (!drag) {
+          vx += 0.00007;
+        }
+        earth.rotation.y += vx;
+        earth.rotation.x += vy;
+        clouds.rotation.y += vx * 1.15 + 0.00008;
+        clouds.rotation.x += vy * 0.85;
+        nightLights.rotation.y = earth.rotation.y;
+        nightLights.rotation.x = earth.rotation.x;
+
+        vx *= 0.965;
+        vy *= 0.94;
+        earth.rotation.x = Math.max(-0.48, Math.min(0.48, earth.rotation.x));
+        renderer.render(scene, camera);
+      }
+
+      window.addEventListener('resize', resize);
+      resize();
+      animate();
+    })();
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    (function initSkillOrbs() {
+      const items = document.querySelectorAll('.skill-sphere-canvas');
+      if (!items.length) return;
+
+      const renderer = new THREE.WebGLRenderer({
+        alpha: true,
+        antialias: true,
+        preserveDrawingBuffer: true,
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const geo = new THREE.IcosahedronGeometry(1, 1);
+      const edgeGeo = new THREE.EdgesGeometry(geo);
+      const lightDir = new THREE.Vector3(0.5, 0.8, 1.0).normalize();
+
+      const vertShader = `
+        varying vec3 vPos;
+        varying vec3 vWorldPos;
+        void main() {
+          vPos = position;
+          vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `;
+
+      const fragShader = `
+        precision highp float;
+        uniform sampler2D uLogo;
+        uniform vec3 uLight;
+
+        varying vec3 vPos;
+        varying vec3 vWorldPos;
+
+        void main() {
+          vec3 n = normalize(cross(dFdx(vWorldPos), dFdy(vWorldPos)));
+
+          float diff = max(dot(n, uLight), 0.0);
+          float light = 0.45 + diff * 0.55;
+
+          // white stone base
+          vec3 stone = vec3(0.92, 0.93, 0.95) * light;
+
+          // specular
+          vec3 h = normalize(uLight + vec3(0.0, 0.0, 1.0));
+          float spec = pow(max(dot(n, h), 0.0), 18.0);
+          stone += vec3(1.0) * spec * 0.15;
+
+          // front-project logo texture (opaque white bg + icon)
+          vec2 uv = vPos.xy * 0.52 + 0.5;
+          uv = clamp(uv, 0.0, 1.0);
+          vec3 tex = texture2D(uLogo, uv).rgb;
+
+          // blend texture on front-facing surfaces
+          float front = smoothstep(-0.05, 0.35, n.z);
+          vec3 texLit = tex * light;
+          stone = mix(stone, texLit, front);
+
+          // subtle rim darkening
+          float rim = 1.0 - max(dot(n, vec3(0.0, 0.0, 1.0)), 0.0);
+          stone *= 1.0 - rim * rim * 0.12;
+
+          gl_FragColor = vec4(stone, 1.0);
+        }
+      `;
+
+      const ICON_CDN = 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/';
+
+      function makeTex(cv) {
+        const tex = new THREE.CanvasTexture(cv);
+        tex.generateMipmaps = false;
+        tex.minFilter = THREE.LinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+        tex.colorSpace = THREE.SRGBColorSpace;
+        return tex;
+      }
+
+      function drawTextCanvas(label, color) {
+        const s = 256;
+        const cv = document.createElement('canvas');
+        cv.width = s; cv.height = s;
+        const cx = cv.getContext('2d');
+        cx.fillStyle = '#fff';
+        cx.fillRect(0, 0, s, s);
+        cx.fillStyle = color;
+        const fs = label.length > 2 ? 52 : 68;
+        cx.font = `bold ${fs}px "DM Mono", monospace`;
+        cx.textAlign = 'center';
+        cx.textBaseline = 'middle';
+        cx.fillText(label, s / 2, s / 2);
+        return cv;
+      }
+
+      function loadIconTex(iconPath, label, color, mat) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          const s = 256;
+          const cv = document.createElement('canvas');
+          cv.width = s; cv.height = s;
+          const cx = cv.getContext('2d');
+          cx.fillStyle = '#fff';
+          cx.fillRect(0, 0, s, s);
+          cx.drawImage(img, 48, 48, 160, 160);
+          mat.uniforms.uLogo.value.dispose();
+          mat.uniforms.uLogo.value = makeTex(cv);
+        };
+        img.onerror = () => {
+          mat.uniforms.uLogo.value.dispose();
+          mat.uniforms.uLogo.value = makeTex(drawTextCanvas(label, color));
+        };
+        img.src = ICON_CDN + iconPath;
+      }
+
+      const orbs = [];
+
+      items.forEach((el, idx) => {
+        const label = el.dataset.short || '';
+        const color = el.dataset.color || '#57d8bf';
+        const iconPath = el.dataset.icon || '';
+
+        const c = document.createElement('canvas');
+        const ctx = c.getContext('2d');
+        el.appendChild(c);
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+        camera.position.z = 3.2;
+
+        const initTex = makeTex(drawTextCanvas(label, color));
+        const mat = new THREE.ShaderMaterial({
+          uniforms: {
+            uLogo: { value: initTex },
+            uLight: { value: lightDir },
+          },
+          vertexShader: vertShader,
+          fragmentShader: fragShader,
+        });
+
+        if (iconPath) {
+          loadIconTex(iconPath, label, color, mat);
+        }
+
+        const mesh = new THREE.Mesh(geo, mat);
+        scene.add(mesh);
+
+        const edgeMat = new THREE.LineBasicMaterial({
+          color: 0x999999,
+          transparent: true,
+          opacity: 0.3,
+        });
+        const edges = new THREE.LineSegments(edgeGeo, edgeMat);
+        mesh.add(edges);
+
+        mesh.rotation.x = 0;
+        mesh.rotation.y = 0;
+
+        let dragging = false, lx = 0, ly = 0;
+        el.addEventListener('pointerdown', e => {
+          dragging = true; lx = e.clientX; ly = e.clientY;
+          el.setPointerCapture(e.pointerId);
+        });
+        el.addEventListener('pointermove', e => {
+          if (!dragging) return;
+          mesh.rotation.y += (e.clientX - lx) * 0.012;
+          mesh.rotation.x += (e.clientY - ly) * 0.012;
+          lx = e.clientX; ly = e.clientY;
+        });
+        el.addEventListener('pointerup', () => { dragging = false; });
+        el.addEventListener('pointercancel', () => { dragging = false; });
+        el.addEventListener('lostpointercapture', () => { dragging = false; });
+
+        orbs.push({ el, c, ctx, scene, camera, mesh, dragging: () => dragging });
+      });
+
+      let lastW = 0, lastH = 0;
+
+      function resize() {
+        orbs.forEach(o => {
+          const w = o.el.clientWidth;
+          const h = o.el.clientHeight;
+          const d = Math.min(window.devicePixelRatio, 2);
+          o.c.width = Math.floor(w * d);
+          o.c.height = Math.floor(h * d);
+          o.c.style.width = w + 'px';
+          o.c.style.height = h + 'px';
+        });
+      }
+
+      function animate() {
+        if (!orbs.length) return;
+        const w = orbs[0].c.width;
+        const h = orbs[0].c.height;
+        if (w > 0 && h > 0) {
+          if (w !== lastW || h !== lastH) {
+            renderer.setSize(w, h, false);
+            lastW = w; lastH = h;
+          }
+          orbs.forEach(o => {
+            renderer.render(o.scene, o.camera);
+            o.ctx.clearRect(0, 0, w, h);
+            o.ctx.drawImage(renderer.domElement, 0, 0, w, h);
+          });
+        }
+        requestAnimationFrame(animate);
+      }
+
+      resize();
+      animate();
+      window.addEventListener('resize', resize);
+    })();
+  </script>
 </body>
 </html>
