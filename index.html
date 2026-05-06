@@ -591,10 +591,17 @@
           };
 
           /* Desktop: threshold 0.12 + negative rootMargin (original proven values).
-             Mobile: threshold 0.05 + no rootMargin (sections are very tall so
-             12% would require too much scrolling before triggering). */
+             Mobile (<1080px): threshold 0.05 + no rootMargin (sections are very
+             tall so 12% would require too much scrolling before triggering).
+             initialFired: IntersectionObserver always fires once synchronously
+             when observe() is called. We skip that first callback — it reflects
+             the page state before the user has scrolled anywhere, and on mobile
+             the hero can be short enough that #about is already "intersecting"
+             at load, causing cards to animate off-screen invisibly. */
           var isMobile = window.innerWidth < 1080;
+          var initialFired = false;
           var observer = new IntersectionObserver(function (entries) {
+            if (!initialFired) { initialFired = true; return; }
             entries.forEach(function (entry) {
               if (entry.isIntersecting) {
                 reveal();

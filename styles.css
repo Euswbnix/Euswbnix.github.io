@@ -1260,10 +1260,6 @@ footer {
   .skills-row + .skills-row { margin-top: 1rem; }
   .skill-sphere-canvas { width: 80px; height: 80px; }
   .projects-grid { grid-template-columns: 1fr; }
-  #projects .proj-hidden {
-    opacity: 1;
-    transform: none;
-  }
   .contact-card-inner { padding: 0; }
   .contact-layout {
     grid-template-columns: 1fr;
