@@ -258,7 +258,7 @@ main {
   -ms-touch-action: none;
 }
 .hero-earth:active { cursor: grabbing; }
-.hero-earth canvas { width: 100% !important; height: 100% !important; display: block; }
+.hero-earth canvas { width: 100% !important; height: 100% !important; display: block; touch-action: none; pointer-events: none; }
 .hero-orb-fallback {
   border-radius: 999px;
   border: 1px solid rgba(87, 216, 191, 0.3);
@@ -759,7 +759,7 @@ section {
   -ms-touch-action: none;
 }
 .skill-sphere-canvas:active { cursor: grabbing; }
-.skill-sphere-canvas canvas { width: 100%; height: 100%; display: block; }
+.skill-sphere-canvas canvas { width: 100%; height: 100%; display: block; touch-action: none; pointer-events: none; }
 
 .skill-sphere-name {
   color: var(--text);
@@ -1167,13 +1167,21 @@ footer {
   .hero-orb { justify-self: start; }
   .hero-right { transform: translateY(-20px); }
   .two-col { grid-template-columns: 1fr; }
-  .skills-spheres { grid-template-columns: repeat(4, auto); gap: 1.5rem 1rem; }
+  .skills-spheres { display: block; }
   .projects-grid { grid-template-columns: repeat(2, 1fr); }
   .about-exp-grid { grid-template-columns: 1fr; }
   .life-layout { grid-template-columns: 1fr; gap: 2rem; }
   .life-main { border-right: 0; padding-right: 0; }
   .life-side { grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
   .contact-layout { grid-template-columns: 1fr; }
+  .transformer-panel { order: -1; }
+  .skills-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.2rem 0.8rem;
+    justify-items: center;
+  }
+  .skills-row + .skills-row { margin-top: 1.2rem; }
 }
 
 @media (max-width: 760px) {
