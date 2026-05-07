@@ -1136,9 +1136,14 @@
         const posArr = new Float32Array((segments + 1) * 3);
         const colArr = new Float32Array((segments + 1) * 3);
 
-        // Start position: upper half, random x
-        const sx = (Math.random() - 0.5) * 280;
-        const sy = 30 + Math.random() * 60;
+        // Derive spawn bounds from the camera frustum at this depth so meteors
+        // are always visible regardless of aspect ratio (portrait mobile vs landscape desktop).
+        const dist = Math.abs(camera.position.z - z);
+        const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * dist;
+        const halfW = halfH * camera.aspect;
+        // Spawn anywhere across the full width, in the upper ~40% of the frame
+        const sx = (Math.random() - 0.5) * halfW * 2.2;
+        const sy = halfH * (0.15 + Math.random() * 0.4);
 
         for (let i = 0; i <= segments; i++) {
           const t = i / segments; // 0 = tail, 1 = head
