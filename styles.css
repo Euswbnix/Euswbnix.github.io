@@ -170,11 +170,11 @@ main {
 
 .hero-desc {
   max-width: 42ch;
+  min-height: 9rem; /* reserves space for 2-line tagline so CTA doesn't jitter */
 }
 .hero-desc-text {
   border-left: 2px solid var(--accent);
   padding-left: 1.1rem;
-  display: inline-block;
 }
 .hero-copy {
   color: var(--text-secondary);
@@ -186,7 +186,6 @@ main {
   font-size: 1.02rem;
   line-height: 1.6;
   margin-top: 0.3rem;
-  min-height: calc(1.6em * 2);
 }
 .hero-tagline .cursor {
   display: inline-block;
