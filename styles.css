@@ -169,9 +169,12 @@ main {
 }
 
 .hero-desc {
+  max-width: 42ch;
+}
+.hero-desc-text {
   border-left: 2px solid var(--accent);
   padding-left: 1.1rem;
-  max-width: 42ch;
+  display: inline-block;
 }
 .hero-copy {
   color: var(--text-secondary);
@@ -182,8 +185,8 @@ main {
   color: var(--text-secondary);
   font-size: 1.02rem;
   line-height: 1.6;
-  min-height: calc(1.6em * 2);
   margin-top: 0.3rem;
+  min-height: calc(1.6em * 2);
 }
 .hero-tagline .cursor {
   display: inline-block;
