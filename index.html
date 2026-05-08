@@ -641,6 +641,9 @@
 
     (function initTiltEffect() {
       if (typeof VanillaTilt === 'undefined') return;
+      /* Only enable tilt on mouse-driven devices. Touch screens have no
+         mouseleave event so the tilt never resets after a tap. */
+      if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
       VanillaTilt.init(document.querySelectorAll('.project-card, .about-exp-card'), {
         max: 8,
         speed: 400,
