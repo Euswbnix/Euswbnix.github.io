@@ -346,8 +346,13 @@
   </main>
 
   <script>
-    /* ── Prevent browser from restoring last scroll position on refresh ── */
+    /* ── Always land at top on load/refresh ──
+       1. Disable browser scroll-position restoration.
+       2. Strip any URL hash NOW (before DOM ready) so the browser never
+          auto-scrolls to a section anchor (e.g. #projects, #contact).
+       3. Double-rAF inside the load event beats any late browser scroll. */
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    if (location.hash) history.replaceState(null, '', location.pathname);
 
     (function initTypingAnimation() {
       const el = document.getElementById('hero-tagline');
@@ -564,7 +569,8 @@
          override it. requestAnimationFrame gives the browser one paint cycle
          to finish any internal scroll restoration before we reset. */
       requestAnimationFrame(function () {
-        window.scrollTo(0, 0);
+        requestAnimationFrame(function () {
+        window.scrollTo({ top: 0, behavior: 'instant' });
 
         var groups = [
           { section: '#about',    selector: '.about-exp-card', step: 350, keepVisible: false },
@@ -629,6 +635,7 @@
 
           observer.observe(host);
         });
+        }); // end inner rAF
       });
     });
 
