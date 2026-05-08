@@ -350,13 +350,49 @@ section {
 
 .about-card p { color: var(--text-secondary); line-height: 1.7; }
 
-.edu-item {
-  padding: 0.9rem 0;
-  border-bottom: 1px solid var(--line);
+.edu-timeline {
+  padding: 0.5rem 0;
 }
-.edu-item:last-child { border-bottom: 0; }
-.edu-year { color: var(--muted); font-family: var(--mono); font-size: 0.78rem; }
-.edu-main { margin-top: 0.35rem; color: var(--text); font-weight: 500; }
+.edu-entry {
+  display: flex;
+  gap: 1.4rem;
+  align-items: flex-start;
+}
+.edu-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-top: 0.35rem;
+}
+.edu-body {
+  flex: 1;
+}
+.edu-period {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  margin-bottom: 0.4rem;
+}
+.edu-degree {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+}
+.edu-school {
+  color: var(--accent);
+  font-size: 0.9rem;
+  margin-bottom: 0.6rem;
+}
+.edu-desc {
+  color: var(--text-secondary);
+  font-size: 0.93rem;
+  line-height: 1.65;
+  margin: 0;
+}
 
 /* ── ROLE CARDS ── */
 .role-grid {
