@@ -1395,7 +1395,10 @@
         /* Overlay sphere — fragment shader paints a solid filled dot
            on the surface using angular distance from the target. */
         const overlayMat = new THREE.ShaderMaterial({
-          uniforms: { uTarget: { value: targetDir } },
+          uniforms: {
+            uTarget: { value: targetDir },
+            uPhase:  { value: 0.0 }
+          },
           vertexShader: [
             'varying vec3 vNorm;',
             'void main() {',
@@ -1404,11 +1407,15 @@
             '}'
           ].join('\n'),
           fragmentShader: [
-            'uniform vec3 uTarget;',
-            'varying vec3 vNorm;',
+            'uniform vec3  uTarget;',
+            'uniform float uPhase;',
+            'varying vec3  vNorm;',
             'void main() {',
             '  float ang = acos(clamp(dot(normalize(vNorm), uTarget), -1.0, 1.0));',
-            '  float a = 1.0 - smoothstep(0.012, 0.018, ang);',
+            '  float d   = 1.0 - smoothstep(0.012, 0.018, ang);',
+            '  float r   = uPhase * 0.15;',
+            '  float disc = (1.0 - smoothstep(r - 0.004, r, ang)) * (1.0 - uPhase) * 0.45;',
+            '  float a = max(d, disc);',
             '  if (a < 0.01) discard;',
             '  gl_FragColor = vec4(0.29, 0.87, 0.50, a);',
             '}'
@@ -1420,7 +1427,10 @@
         earth.add(new THREE.Mesh(
           new THREE.SphereGeometry(1.086, 96, 96), overlayMat
         ));
-        locationPulse = function () {};
+        locationPulse = function () {
+          overlayMat.uniforms.uPhase.value =
+            (overlayMat.uniforms.uPhase.value + 0.008) % 1.0;
+        };
       }
 
       if ('geolocation' in navigator) {
