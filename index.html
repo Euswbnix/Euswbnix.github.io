@@ -1408,7 +1408,7 @@
 
         let phase = 0;
         locationPulse = function () {
-          phase = (phase + 0.022) % 1;
+          phase = (phase + 0.008) % 1;
           const s = 1 + phase * 3.5;
           ring.scale.setScalar(s);
           ringMat.opacity = 0.45 * (1 - phase);
