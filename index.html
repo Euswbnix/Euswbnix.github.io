@@ -1376,6 +1376,52 @@
       const atmosphere = new THREE.Mesh(atmoGeo, atmoMat);
       earthGroup.add(atmosphere);
 
+      /* ── Visitor location dot ── */
+      let locationPulse = null;
+
+      function latLngToVec3(lat, lng, r) {
+        const phi   = (90 - lat)  * (Math.PI / 180);
+        const theta = (lng + 180) * (Math.PI / 180);
+        return new THREE.Vector3(
+          -r * Math.sin(phi) * Math.cos(theta),
+           r * Math.cos(phi),
+           r * Math.sin(phi) * Math.sin(theta)
+        );
+      }
+
+      function placeLocationDot(lat, lng) {
+        const pos = latLngToVec3(lat, lng, 1.096); // just above surface
+
+        // Solid green dot
+        const dotMat = new THREE.MeshBasicMaterial({ color: 0x4ade80 });
+        const dot = new THREE.Mesh(new THREE.SphereGeometry(0.018, 16, 16), dotMat);
+        dot.position.copy(pos);
+        earth.add(dot);
+
+        // Pulse ring
+        const ringMat = new THREE.MeshBasicMaterial({
+          color: 0x4ade80, transparent: true, opacity: 0.5, depthWrite: false
+        });
+        const ring = new THREE.Mesh(new THREE.SphereGeometry(0.018, 16, 16), ringMat);
+        ring.position.copy(pos);
+        earth.add(ring);
+
+        let phase = 0;
+        locationPulse = function () {
+          phase = (phase + 0.022) % 1;
+          const s = 1 + phase * 3.5;
+          ring.scale.setScalar(s);
+          ringMat.opacity = 0.45 * (1 - phase);
+        };
+      }
+
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          function (pos) { placeLocationDot(pos.coords.latitude, pos.coords.longitude); },
+          function () {}   // silently skip if denied
+        );
+      }
+
       let drag = false;
       let px = 0;
       let py = 0;
@@ -1426,6 +1472,7 @@
         vx *= 0.965;
         vy *= 0.94;
         earth.rotation.x = Math.max(-0.48, Math.min(0.48, earth.rotation.x));
+        if (locationPulse) locationPulse();
         renderer.render(scene, camera);
       }
 
