@@ -1419,8 +1419,22 @@
         ring.scale.set(0.10, 0.10, 1);
         earth.add(ring);
 
+        // Precompute visibility threshold: a point on the sphere at radius r
+        // is behind the earth (occluded) when dot(worldPos, camPos) < r * sqrt(|camPos|²-r²)
+        const dotR = 1.092;
+        const camLen = camera.position.length();
+        const visThreshold = dotR * Math.sqrt(camLen * camLen - dotR * dotR);
+        const wPos = new THREE.Vector3();
+
         let phase = 0;
         locationPulse = function () {
+          // Check visibility: hide when the dot's world position is on the far side
+          dot.getWorldPosition(wPos);
+          const visible = wPos.dot(camera.position) > visThreshold;
+          dot.visible = visible;
+          ring.visible = visible;
+          if (!visible) return;
+
           phase = (phase + 0.008) % 1;
           const s = 0.10 + phase * 0.45;
           ring.scale.set(s, s, 1);
