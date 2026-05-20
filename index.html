@@ -1392,15 +1392,10 @@
       function placeLocationDot(lat, lng) {
         const targetDir = latLngToVec3(lat, lng, 1.0).normalize();
 
-        /* Overlay sphere — same center as earth, slightly larger radius.
-           A fragment shader computes angular distance from the target
-           direction and paints a dot + expanding ring directly ON the
-           surface. Backface culling naturally hides the far side. */
+        /* Overlay sphere — fragment shader paints a solid filled dot
+           on the surface using angular distance from the target. */
         const overlayMat = new THREE.ShaderMaterial({
-          uniforms: {
-            uTarget: { value: targetDir },
-            uPhase:  { value: 0.0 }
-          },
+          uniforms: { uTarget: { value: targetDir } },
           vertexShader: [
             'varying vec3 vNorm;',
             'void main() {',
@@ -1409,23 +1404,13 @@
             '}'
           ].join('\n'),
           fragmentShader: [
-            'uniform vec3  uTarget;',
-            'uniform float uPhase;',
-            'varying vec3  vNorm;',
+            'uniform vec3 uTarget;',
+            'varying vec3 vNorm;',
             'void main() {',
             '  float ang = acos(clamp(dot(normalize(vNorm), uTarget), -1.0, 1.0));',
-            '',
-            '  /* solid dot */',
-            '  float d = 1.0 - smoothstep(0.016, 0.024, ang);',
-            '',
-            '  /* expanding ring */',
-            '  float rr = uPhase * 0.20;',
-            '  float w  = 0.006;',
-            '  float ring = smoothstep(rr - w, rr, ang)',
-            '             * (1.0 - smoothstep(rr, rr + w, ang));',
-            '  ring *= (1.0 - uPhase) * 0.6;',
-            '',
-            '  float a = max(d, ring);',
+            '  float d   = 1.0 - smoothstep(0.025, 0.04, ang);',
+            '  float glow = 0.3 * (1.0 - smoothstep(0.03, 0.09, ang));',
+            '  float a = max(d, glow);',
             '  if (a < 0.01) discard;',
             '  gl_FragColor = vec4(0.29, 0.87, 0.50, a);',
             '}'
@@ -1434,16 +1419,10 @@
           depthWrite: false
         });
 
-        const overlay = new THREE.Mesh(
-          new THREE.SphereGeometry(1.086, 96, 96),
-          overlayMat
-        );
-        earth.add(overlay);
-
-        locationPulse = function () {
-          overlayMat.uniforms.uPhase.value =
-            (overlayMat.uniforms.uPhase.value + 0.008) % 1.0;
-        };
+        earth.add(new THREE.Mesh(
+          new THREE.SphereGeometry(1.086, 96, 96), overlayMat
+        ));
+        locationPulse = function () {};
       }
 
       if ('geolocation' in navigator) {
