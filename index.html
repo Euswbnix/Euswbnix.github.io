@@ -1390,31 +1390,32 @@
       }
 
       function placeLocationDot(lat, lng) {
-        const pos = latLngToVec3(lat, lng, 1.096); // just above surface
+        const pos    = latLngToVec3(lat, lng, 1.092);
+        const outDir = pos.clone().normalize();
 
-        // Solid green dot
-        const dotMat = new THREE.MeshBasicMaterial({ color: 0x4ade80 });
-        const dot = new THREE.Mesh(new THREE.SphereGeometry(0.018, 16, 16), dotMat);
+        // Solid dot — depthTest off so it always shows above all sphere layers
+        const dotMat = new THREE.MeshBasicMaterial({ color: 0x4ade80, depthTest: false });
+        const dot = new THREE.Mesh(new THREE.SphereGeometry(0.022, 16, 16), dotMat);
         dot.position.copy(pos);
+        dot.renderOrder = 10;
         earth.add(dot);
 
-        // Pulse ring — flat RingGeometry oriented along the surface normal
+        // Pulse ring — flat, oriented to surface normal, also always on top
         const ringMat = new THREE.MeshBasicMaterial({
-          color: 0x4ade80, transparent: true, opacity: 0.5,
-          depthWrite: false, side: THREE.DoubleSide
+          color: 0x4ade80, transparent: true, opacity: 0.65,
+          depthTest: false, depthWrite: false, side: THREE.DoubleSide
         });
-        const ring = new THREE.Mesh(new THREE.RingGeometry(0.012, 0.026, 40), ringMat);
+        const ring = new THREE.Mesh(new THREE.RingGeometry(0.028, 0.048, 48), ringMat);
         ring.position.copy(pos);
-        // Align ring so its face points outward from the sphere surface
-        ring.lookAt(pos.clone().multiplyScalar(2));
+        ring.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), outDir);
+        ring.renderOrder = 11;
         earth.add(ring);
 
         let phase = 0;
         locationPulse = function () {
           phase = (phase + 0.008) % 1;
-          const s = 1 + phase * 4.5;
-          ring.scale.setScalar(s);
-          ringMat.opacity = 0.5 * (1 - phase);
+          ring.scale.setScalar(1 + phase * 5);
+          ringMat.opacity = 0.65 * (1 - phase);
         };
       }
 
