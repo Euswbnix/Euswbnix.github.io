@@ -1390,8 +1390,7 @@
       }
 
       function placeLocationDot(lat, lng) {
-        const pos    = latLngToVec3(lat, lng, 1.092);
-        const outDir = pos.clone().normalize();
+        const pos = latLngToVec3(lat, lng, 1.092);
 
         // Solid dot
         const dotMat = new THREE.MeshBasicMaterial({ color: 0x4ade80 });
@@ -1399,22 +1398,33 @@
         dot.position.copy(pos);
         earth.add(dot);
 
-        // Pulse ring — flat, oriented to surface normal
-        // depthTest stays true so earth naturally occludes it on the back side
-        const ringMat = new THREE.MeshBasicMaterial({
-          color: 0x4ade80, transparent: true, opacity: 0.65,
-          depthWrite: false, side: THREE.DoubleSide
+        // Pulse ring as a Sprite — always faces the camera so it always
+        // looks like a flat circle regardless of viewing angle
+        const cv = document.createElement('canvas');
+        cv.width = cv.height = 128;
+        const ctx = cv.getContext('2d');
+        ctx.clearRect(0, 0, 128, 128);
+        ctx.beginPath();
+        ctx.arc(64, 64, 50, 0, Math.PI * 2);
+        ctx.strokeStyle = '#4ade80';
+        ctx.lineWidth = 10;
+        ctx.stroke();
+
+        const spriteMat = new THREE.SpriteMaterial({
+          map: new THREE.CanvasTexture(cv),
+          transparent: true, opacity: 0.65, depthWrite: false
         });
-        const ring = new THREE.Mesh(new THREE.RingGeometry(0.028, 0.048, 48), ringMat);
+        const ring = new THREE.Sprite(spriteMat);
         ring.position.copy(pos);
-        ring.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), outDir);
+        ring.scale.set(0.10, 0.10, 1);
         earth.add(ring);
 
         let phase = 0;
         locationPulse = function () {
           phase = (phase + 0.008) % 1;
-          ring.scale.setScalar(1 + phase * 5);
-          ringMat.opacity = 0.65 * (1 - phase);
+          const s = 0.10 + phase * 0.45;
+          ring.scale.set(s, s, 1);
+          spriteMat.opacity = 0.65 * (1 - phase);
         };
       }
 
