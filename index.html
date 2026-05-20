@@ -1408,9 +1408,7 @@
             'varying vec3 vNorm;',
             'void main() {',
             '  float ang = acos(clamp(dot(normalize(vNorm), uTarget), -1.0, 1.0));',
-            '  float d   = 1.0 - smoothstep(0.025, 0.04, ang);',
-            '  float glow = 0.3 * (1.0 - smoothstep(0.03, 0.09, ang));',
-            '  float a = max(d, glow);',
+            '  float a = 1.0 - smoothstep(0.025, 0.038, ang);',
             '  if (a < 0.01) discard;',
             '  gl_FragColor = vec4(0.29, 0.87, 0.50, a);',
             '}'
