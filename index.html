@@ -1398,20 +1398,23 @@
         dot.position.copy(pos);
         earth.add(dot);
 
-        // Pulse ring
+        // Pulse ring — flat RingGeometry oriented along the surface normal
         const ringMat = new THREE.MeshBasicMaterial({
-          color: 0x4ade80, transparent: true, opacity: 0.5, depthWrite: false
+          color: 0x4ade80, transparent: true, opacity: 0.5,
+          depthWrite: false, side: THREE.DoubleSide
         });
-        const ring = new THREE.Mesh(new THREE.SphereGeometry(0.018, 16, 16), ringMat);
+        const ring = new THREE.Mesh(new THREE.RingGeometry(0.012, 0.026, 40), ringMat);
         ring.position.copy(pos);
+        // Align ring so its face points outward from the sphere surface
+        ring.lookAt(pos.clone().multiplyScalar(2));
         earth.add(ring);
 
         let phase = 0;
         locationPulse = function () {
           phase = (phase + 0.008) % 1;
-          const s = 1 + phase * 3.5;
+          const s = 1 + phase * 4.5;
           ring.scale.setScalar(s);
-          ringMat.opacity = 0.45 * (1 - phase);
+          ringMat.opacity = 0.5 * (1 - phase);
         };
       }
 
