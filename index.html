@@ -1398,18 +1398,15 @@
         dot.position.copy(pos);
         earth.add(dot);
 
-        // Pulse ring as a Sprite — always faces the camera so it always
-        // looks like a flat circle regardless of viewing angle
+        // Pulse ring as Sprite (always faces camera → always a flat circle)
         const cv = document.createElement('canvas');
         cv.width = cv.height = 128;
-        const ctx = cv.getContext('2d');
-        ctx.clearRect(0, 0, 128, 128);
-        ctx.beginPath();
-        ctx.arc(64, 64, 50, 0, Math.PI * 2);
-        ctx.strokeStyle = '#4ade80';
-        ctx.lineWidth = 10;
-        ctx.stroke();
-
+        const cx = cv.getContext('2d');
+        cx.beginPath();
+        cx.arc(64, 64, 50, 0, Math.PI * 2);
+        cx.strokeStyle = '#4ade80';
+        cx.lineWidth = 10;
+        cx.stroke();
         const spriteMat = new THREE.SpriteMaterial({
           map: new THREE.CanvasTexture(cv),
           transparent: true, opacity: 0.65, depthWrite: false
@@ -1419,19 +1416,16 @@
         ring.scale.set(0.10, 0.10, 1);
         earth.add(ring);
 
-        // Precompute visibility threshold: a point on the sphere at radius r
-        // is behind the earth (occluded) when dot(worldPos, camPos) < r * sqrt(|camPos|²-r²)
-        const dotR = 1.092;
-        const camLen = camera.position.length();
-        const visThreshold = dotR * Math.sqrt(camLen * camLen - dotR * dotR);
+        // Visibility check: tangent condition P·C = R²
+        // A point on the sphere is behind the horizon when P·C < R²
+        const visThreshold = 1.092 * 1.092;
         const wPos = new THREE.Vector3();
 
         let phase = 0;
         locationPulse = function () {
-          // Check visibility: hide when the dot's world position is on the far side
           dot.getWorldPosition(wPos);
           const visible = wPos.dot(camera.position) > visThreshold;
-          dot.visible = visible;
+          dot.visible  = visible;
           ring.visible = visible;
           if (!visible) return;
 
