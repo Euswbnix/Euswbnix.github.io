@@ -21,9 +21,9 @@ CNAME        — custom domain config
 ## Sections
 
 1. **Hero** — animated Earth globe, typewriter tagline
-2. **About** — bio, skills, experience cards
-3. **Education** — degree timeline
-4. **Projects** — project cards with stack tags
-5. **Skills** — interactive 3D skill orbs
+2. **Projects** — project cards with stack tags (PageLamp featured first)
+3. **Skills** — interactive 3D skill orbs
+4. **About** — bio, experience cards
+5. **Education** — degree timeline
 6. **Life** — personal section
 7. **Contact** — Live Decode panel + contact card

@@ -26,9 +26,9 @@
   <header class="topbar">
     <a class="brand" href="#home">Alex Portfolio</a>
     <nav>
+      <a href="#projects">Projects</a>
       <a href="#about">About</a>
       <a href="#education">Education</a>
-      <a href="#projects">Projects</a>
       <a href="#life">Life</a>
       <a href="#contact">Contact</a>
     </nav>
@@ -58,14 +58,104 @@
       </div>
     </section>
 
+    <section id="projects">
+      <div class="section-header"><span class="section-index">01</span><h2 class="section-title">Projects</h2></div>
+      <div class="projects-grid">
+        <article class="project-card proj-hidden project-featured">
+          <div class="proj-num">Featured &middot; Open source</div>
+          <h3 class="project-title">PageLamp &mdash; course context for your AI app</h3>
+          <p class="project-desc">A local-first desktop app and command-line tool that keeps a searchable picture of your courses on your own computer: which week each course is in, its materials and its deadlines. It syncs from a course folder, a calendar feed or Canvas, and serves everything over MCP to the AI app you already use (Claude, Codex, ChatGPT). It only reads, calls no AI model itself, and needs no server or account. Rust core with a Tauri 2 + React desktop app; v0.1.0 ships signed builds for macOS and Windows plus Linux packages.</p>
+          <div class="stack">
+            <span class="about-tag">Rust</span><span class="about-tag">Tauri 2</span><span class="about-tag">React</span><span class="about-tag">TypeScript</span><span class="about-tag">SQLite</span><span class="about-tag">MCP</span>
+          </div>
+          <div class="proj-links"><a class="proj-link" href="https://github.com/Euswbnix/pagelamp" target="_blank" rel="noopener">View Repo &rarr;</a><a class="proj-link" href="https://github.com/Euswbnix/pagelamp/releases/tag/v0.1.0" target="_blank" rel="noopener">Download v0.1.0 &rarr;</a></div>
+        </article>
+        <article class="project-card proj-hidden">
+          <div class="proj-num">Project 02</div>
+          <h3 class="project-title">Transformer Machine Translation from Scratch</h3>
+          <p class="project-desc">A from-scratch PyTorch implementation of the Transformer (Vaswani et al., 2017), trained on WMT14 en-fr and en-de without pretrained weights. The Big model (209M parameters) reaches 35.87 BLEU on newstest2014 en-fr with checkpoint averaging. Four checkpoints are on Hugging Face, and a small desktop app translates with them.</p>
+          <div class="stack">
+            <span class="about-tag">PyTorch</span><span class="about-tag">Transformer</span><span class="about-tag">SentencePiece</span><span class="about-tag">Hugging Face</span><span class="about-tag">NLP</span>
+          </div>
+          <div class="proj-links"><a class="proj-link" href="https://github.com/Euswbnix/Machine_translation" target="_blank" rel="noopener">View Repo &rarr;</a><a class="proj-link" href="https://huggingface.co/euswbnix" target="_blank" rel="noopener">Weights &rarr;</a></div>
+        </article>
+        <article class="project-card proj-hidden">
+          <div class="proj-num">Project 03</div>
+          <h3 class="project-title">CIFAR-10 Diffusion Speedrun</h3>
+          <p class="project-desc">A from-scratch PyTorch replication of DDPM (Ho et al., 2020), used as the baseline of a single-GPU speedrun that times training to FID targets under a fixed evaluation protocol. The paper-faithful 35.75M-parameter U-Net reaches FID 3.139, past the paper&rsquo;s 3.17, within 9.61 hours on one RTX 5090. Recipe changes are now being tested one at a time.</p>
+          <div class="stack">
+            <span class="about-tag">PyTorch</span><span class="about-tag">Diffusion</span><span class="about-tag">U-Net</span><span class="about-tag">clean-fid</span>
+          </div>
+          <div class="proj-links"><a class="proj-link" href="https://github.com/Euswbnix/DDPM-Diffusion-Model" target="_blank" rel="noopener">View Repo &rarr;</a><a class="proj-link" href="https://huggingface.co/euswbnix/ddpm-cifar10" target="_blank" rel="noopener">Weights &rarr;</a></div>
+        </article>
+        <article class="project-card proj-hidden">
+          <div class="proj-num">Project 04</div>
+          <h3 class="project-title">Bias&ndash;Variance Tradeoff Explorer</h3>
+          <p class="project-desc">An R package and Shiny app that explore the bias&ndash;variance tradeoff with Monte Carlo simulation. The app compares polynomial regression (degree 1&ndash;15) with k-nearest neighbours (k 1&ndash;50) in interactive Plotly charts, suggests the complexity with the lowest test MSE, and exports the results. Built by a team of seven; released as v0.1.1.</p>
+          <div class="stack">
+            <span class="about-tag">R</span><span class="about-tag">Shiny</span><span class="about-tag">R package</span><span class="about-tag">Plotly</span><span class="about-tag">Monte Carlo</span>
+          </div>
+          <div class="proj-links"><a class="proj-link" href="https://019cea29-16b6-3560-2cce-56feb47d4a51.share.connect.posit.cloud/" target="_blank" rel="noopener">Live App &rarr;</a><a class="proj-link" href="https://github.com/Euswbnix/AKMproject" target="_blank" rel="noopener">View Repo &rarr;</a></div>
+        </article>
+        <article class="project-card proj-hidden">
+          <div class="proj-num">Project 05</div>
+          <h3 class="project-title">Christmas Tree in SwiftUI + Metal</h3>
+          <p class="project-desc">A small macOS app: a point cloud of about 56,000 points (tree, ground rings, stars and a heart on top) built once on the CPU and drawn every frame by a Metal shader as it slowly turns, with a SwiftUI text layer on top.</p>
+          <div class="stack">
+            <span class="about-tag">Swift</span><span class="about-tag">SwiftUI</span><span class="about-tag">Metal</span><span class="about-tag">macOS</span>
+          </div>
+          <div class="proj-links"><a class="proj-link" href="https://github.com/Euswbnix/Christmas_tree" target="_blank" rel="noopener">View Repo &rarr;</a></div>
+        </article>
+        <article class="project-card proj-hidden">
+          <div class="proj-num">Project 06</div>
+          <h3 class="project-title">Painting Classification from Survey Responses</h3>
+          <p class="project-desc">A Python pipeline that predicts which of three paintings a survey respondent is describing. It cleans free-form answers, builds 302 features (structured plus TF-IDF), and compares logistic regression, naive Bayes and decision trees with stratified cross-validation. The chosen model scores 90.24% on a hold-out set, and the submission script runs on NumPy and pandas alone.</p>
+          <div class="stack">
+            <span class="about-tag">Python</span><span class="about-tag">NumPy</span><span class="about-tag">pandas</span><span class="about-tag">scikit-learn</span><span class="about-tag">TF-IDF</span>
+          </div>
+          <div class="proj-links"><a class="proj-link" href="https://github.com/Euswbnix/CSC311_MLProject" target="_blank" rel="noopener">View Repo &rarr;</a></div>
+        </article>
+        <article class="project-card proj-hidden">
+          <div class="proj-num">Project 07</div>
+          <h3 class="project-title">PaintApp &mdash; JavaFX Drawing Tool</h3>
+          <p class="project-desc">A desktop drawing app in Java and JavaFX: shapes, polylines and freehand lines with colour and line width, selection, cut, copy and paste, undo and redo, image import, and saving to its own file format. Built on MVC with the Strategy, Command, Factory and Visitor patterns, with JUnit tests for the file parser.</p>
+          <div class="stack">
+            <span class="about-tag">Java</span><span class="about-tag">JavaFX</span><span class="about-tag">Maven</span><span class="about-tag">JUnit</span><span class="about-tag">MVC</span>
+          </div>
+          <div class="proj-links"><a class="proj-link" href="https://github.com/Euswbnix/PaintApp" target="_blank" rel="noopener">View Repo &rarr;</a></div>
+        </article>
+      </div>
+      <div class="skills-spheres" id="skills">
+        <div class="skills-row">
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="PY" data-color="#3776AB" data-icon="python/python-original.svg"></div><div class="skill-sphere-name">Python</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="R" data-color="#276DC3" data-icon="r/r-original.svg"></div><div class="skill-sphere-name">R</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="C" data-color="#A8B9CC" data-icon="c/c-original.svg"></div><div class="skill-sphere-name">C</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Jv" data-color="#ED8B00" data-icon="java/java-original.svg"></div><div class="skill-sphere-name">Java</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="PT" data-color="#EE4C2C" data-icon="pytorch/pytorch-original.svg"></div><div class="skill-sphere-name">PyTorch</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="skl" data-color="#F7931E" data-icon="scikitlearn/scikitlearn-original.svg"></div><div class="skill-sphere-name">scikit-learn</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Rs" data-color="#DEA584" data-icon="rust/rust-original.svg"></div><div class="skill-sphere-name">Rust</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="TS" data-color="#3178C6" data-icon="typescript/typescript-original.svg"></div><div class="skill-sphere-name">TypeScript</div></div>
+        </div>
+        <div class="skills-row">
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="HF" data-color="#FFD21E"></div><div class="skill-sphere-name">Hugging Face</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Np" data-color="#4DABCF" data-icon="numpy/numpy-original.svg"></div><div class="skill-sphere-name">NumPy/SciPy</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Pd" data-color="#150458" data-icon="pandas/pandas-original.svg"></div><div class="skill-sphere-name">Pandas</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Dk" data-color="#2496ED" data-icon="docker/docker-original.svg"></div><div class="skill-sphere-name">Docker</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Git" data-color="#F05032" data-icon="github/github-original.svg"></div><div class="skill-sphere-name">Git/GitHub</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Lx" data-color="#FCC624" data-icon="linux/linux-original.svg"></div><div class="skill-sphere-name">Linux</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Mpl" data-color="#11557C" data-icon="matplotlib/matplotlib-original.svg"></div><div class="skill-sphere-name">Matplotlib</div></div>
+          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Sw" data-color="#F05138" data-icon="swift/swift-original.svg"></div><div class="skill-sphere-name">Swift</div></div>
+        </div>
+      </div>
+    </section>
     <section id="about">
-      <div class="section-header"><span class="section-index">01</span><h2 class="section-title">About Me</h2></div>
+      <div class="section-header"><span class="section-index">02</span><h2 class="section-title">About Me</h2></div>
       <div class="about-layout">
         <div class="about-left">
           <blockquote class="about-quote"><em>Statistics is the language through which uncertainty becomes knowledge.</em></blockquote>
           <p class="about-bio">I'm a student at the University of Toronto pursuing an Applied Statistics Specialist and Applied Mathematics Major. My work sits at the boundary between rigorous statistical theory and practical machine learning, with a particular focus on Natural Language Processing.</p>
           <p class="about-bio">I'm drawn to problems where mathematical structure meets real-world complexity &mdash; building models that are both theoretically grounded and genuinely useful. From Bayesian inference and probabilistic modeling to deep learning architectures, I enjoy the full spectrum from theory to implementation.</p>
-          <p class="about-bio">Outside of research, I care deeply about clean, reproducible code and the kind of collaborative science that moves the field forward.</p>
+          <p class="about-bio">Outside of research I ship software: PageLamp, an open-source local-first desktop app, as well as full-stack apps, LLM / RAG services and computer-vision inspection pipelines, most of them in private repositories. I care deeply about clean, reproducible code and the kind of collaborative science that moves the field forward.</p>
           <div class="about-tags">
             <span class="about-tag">Deep Learning</span>
             <span class="about-tag">NLP</span>
@@ -147,7 +237,7 @@
           </div>
           <div class="about-exp-title">ML Systems</div>
           <div class="about-exp-sub">End-to-End Pipelines</div>
-          <p class="about-exp-desc">Delivered data cleaning, feature engineering, model training, and validation workflows across coursework projects in Python, NumPy, scikit-learn, and PyTorch.</p>
+          <p class="about-exp-desc">Delivered data cleaning, feature engineering, model training, and validation workflows across coursework and personal projects in Python, NumPy, scikit-learn, and PyTorch.</p>
         </article>
         <article class="about-exp-card proj-hidden">
           <div class="about-exp-geo" data-geo="viz">
@@ -162,13 +252,13 @@
           </div>
           <div class="about-exp-title">Visualization & Tools</div>
           <div class="about-exp-sub">Interactive Analytics</div>
-          <p class="about-exp-desc">Built interactive dashboards and desktop tools, combining statistical storytelling with practical UI design in R Shiny, Plotly, Java Swing, and custom app workflows.</p>
+          <p class="about-exp-desc">Built interactive dashboards and desktop tools, combining statistical storytelling with practical UI design in R Shiny, Plotly, JavaFX, and a Tauri + React desktop app.</p>
         </article>
       </div>
     </section>
 
     <section id="education">
-      <div class="section-header"><span class="section-index">02</span><h2 class="section-title">Education</h2></div>
+      <div class="section-header"><span class="section-index">03</span><h2 class="section-title">Education</h2></div>
       <div class="edu-timeline">
         <div class="edu-entry">
           <div class="edu-dot"></div>
@@ -182,66 +272,6 @@
       </div>
     </section>
 
-    <section id="projects">
-      <div class="section-header"><span class="section-index">03</span><h2 class="section-title">Projects</h2></div>
-      <div class="projects-grid">
-        <article class="project-card proj-hidden">
-          <div class="proj-num">Project 01</div>
-          <h3 class="project-title">Painting Classification Pipeline</h3>
-          <p class="project-desc">End-to-end ML pipeline for art classification as part of the CSC311 challenge. Built data cleaning, feature engineering with TF-IDF, and trained Logistic Regression models achieving competitive accuracy with a numpy-only inference script for submission.</p>
-          <div class="stack">
-            <span class="about-tag">Python</span><span class="about-tag">NumPy</span><span class="about-tag">scikit-learn</span><span class="about-tag">TF-IDF</span>
-          </div>
-          <a class="proj-link" href="https://github.com/Euswbnix/CSC311_MLProject" target="_blank" rel="noopener">View Details &rarr;</a>
-        </article>
-        <article class="project-card proj-hidden">
-          <div class="proj-num">Project 02</div>
-          <h3 class="project-title">PaintApp &mdash; Interactive Drawing Tool</h3>
-          <p class="project-desc">A feature-rich desktop painting application built from scratch with an intuitive UI for sketching and image editing. Supports multiple brush styles, color palettes, shape tools, and undo/redo history with a clean, responsive canvas experience.</p>
-          <div class="stack">
-            <span class="about-tag">Java</span><span class="about-tag">Swing</span><span class="about-tag">OOP</span><span class="about-tag">GUI</span><span class="about-tag">MVC</span>
-          </div>
-          <a class="proj-link" href="https://github.com/Euswbnix/PaintApp" target="_blank" rel="noopener">View Code &rarr;</a>
-        </article>
-        <article class="project-card proj-hidden">
-          <div class="proj-num">Project 03</div>
-          <h3 class="project-title">Interactive Statistical Dashboard</h3>
-          <p class="project-desc">R Shiny application with interactive ggplot2 and Plotly visualizations. Features adaptive label positioning for vertical reference lines across polynomial and KNN regression modes with dynamic axis scaling.</p>
-          <div class="stack">
-            <span class="about-tag">R</span><span class="about-tag">Shiny</span><span class="about-tag">ggplot2</span><span class="about-tag">Plotly</span>
-          </div>
-          <a class="proj-link" href="https://github.com/Euswbnix/AKMproject" target="_blank" rel="noopener">View App &rarr;</a>
-        </article>
-        <article class="project-card proj-hidden">
-          <div class="proj-num">Project 04</div>
-          <h3 class="project-title">Transformer-based Machine Translation</h3>
-          <p class="project-desc">From-scratch PyTorch implementation of the Transformer (Vaswani et al., 2017) trained on WMT14 en-fr and en-de without pretrained weights. Achieved 35.87 BLEU on en-fr with the Big model (209M params). Features SentencePiece BPE, BF16 mixed-precision training, beam search with checkpoint averaging, and published model weights on HuggingFace.</p>
-          <div class="stack">
-            <span class="about-tag">PyTorch</span><span class="about-tag">Transformer</span><span class="about-tag">NLP</span><span class="about-tag">SentencePiece</span><span class="about-tag">HuggingFace</span>
-          </div>
-          <a class="proj-link" href="https://github.com/Euswbnix/Machine_translation" target="_blank" rel="noopener">View Repo &rarr;</a>
-        </article>
-      </div>
-      <div class="skills-spheres" id="skills">
-        <div class="skills-row">
-          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="PY" data-color="#3776AB" data-icon="python/python-original.svg"></div><div class="skill-sphere-name">Python</div></div>
-          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="R" data-color="#276DC3" data-icon="r/r-original.svg"></div><div class="skill-sphere-name">R</div></div>
-          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="C" data-color="#A8B9CC" data-icon="c/c-original.svg"></div><div class="skill-sphere-name">C</div></div>
-          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Jv" data-color="#ED8B00" data-icon="java/java-original.svg"></div><div class="skill-sphere-name">Java</div></div>
-          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="PT" data-color="#EE4C2C" data-icon="pytorch/pytorch-original.svg"></div><div class="skill-sphere-name">PyTorch</div></div>
-          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="skl" data-color="#F7931E" data-icon="scikitlearn/scikitlearn-original.svg"></div><div class="skill-sphere-name">scikit-learn</div></div>
-        </div>
-        <div class="skills-row">
-          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="HF" data-color="#FFD21E"></div><div class="skill-sphere-name">Hugging Face</div></div>
-          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Np" data-color="#4DABCF" data-icon="numpy/numpy-original.svg"></div><div class="skill-sphere-name">NumPy/SciPy</div></div>
-          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Pd" data-color="#150458" data-icon="pandas/pandas-original.svg"></div><div class="skill-sphere-name">Pandas</div></div>
-          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Dk" data-color="#2496ED" data-icon="docker/docker-original.svg"></div><div class="skill-sphere-name">Docker</div></div>
-          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Git" data-color="#F05032" data-icon="github/github-original.svg"></div><div class="skill-sphere-name">Git/GitHub</div></div>
-          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Lx" data-color="#FCC624" data-icon="linux/linux-original.svg"></div><div class="skill-sphere-name">Linux</div></div>
-          <div class="skill-sphere-item"><div class="skill-sphere-canvas" data-short="Mpl" data-color="#11557C" data-icon="matplotlib/matplotlib-original.svg"></div><div class="skill-sphere-name">Matplotlib</div></div>
-        </div>
-      </div>
-    </section>
 
     <section id="life">
       <div class="section-header life-header"><span class="section-index">04</span><h2 class="section-title life-title">Life &amp; Interests</h2></div>
@@ -258,6 +288,7 @@
           <div class="life-side-block">
             <h3 class="life-side-title">Currently Into</h3>
             <ul class="life-list">
+              <li><span class="life-bullet">•</span><span>Building PageLamp, an open-source course companion for AI apps</span></li>
               <li><span class="life-bullet">•</span><span>Researching UI and interaction design methods</span></li>
               <li><span class="life-bullet">•</span><span>Listening to pop music while coding</span></li>
               <li><span class="life-bullet">•</span><span>Distilling chat logs into practical LLM prompts</span></li>
